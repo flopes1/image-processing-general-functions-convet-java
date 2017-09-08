@@ -6,16 +6,43 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.poli.model.EnumFilterType.EnumFilter;
+import com.poli.model.EnumFilterType.Type;
+
 public class Mask
 {
 
     private int rate;
-    private EnumFilterType type;
+    private EnumFilter type;
+    private int[][] weights;
 
-    public Mask(int rate, EnumFilterType type)
+    public Mask(int rate, EnumFilter median)
     {
         this.setRate(rate);
-        this.setType(type);
+        this.setType(median);
+        this.setWeights();
+    }
+
+    public int[][] getWeights()
+    {
+        return weights;
+    }
+
+    public void setWeights()
+    {
+        this.weights = new int[rate][rate];
+
+        if (EnumFilterType.getEnumType(this.getType()).equals(Type.LOW_PASS))
+        {
+            for (int i = 0; i < this.rate; i++)
+            {
+                for (int j = 0; j < this.rate; j++)
+                {
+                    this.weights[i][j] = 1;
+                }
+            }
+        }
+
     }
 
     public int getRate()
@@ -28,12 +55,12 @@ public class Mask
         this.rate = rate;
     }
 
-    public EnumFilterType getType()
+    public EnumFilter getType()
     {
         return type;
     }
 
-    public void setType(EnumFilterType type)
+    public void setType(EnumFilter type)
     {
         this.type = type;
     }
@@ -56,6 +83,8 @@ public class Mask
                 int pixel = subimage.getRGB(j, i);
                 // imagem em tom de cinza, todos os componentes RGB possuem o mesmo valor
                 pixel = (pixel & 0x000000ff);
+                // multiplicando pelo peso da mascara
+                pixel *= this.getWeights()[i][j];
                 imagePixels.add(pixel);
             }
         }
@@ -65,17 +94,17 @@ public class Mask
         return this.getResult(imagePixels, this.type);
     }
 
-    private int getResult(List<Integer> imagePixels, EnumFilterType type)
+    private int getResult(List<Integer> imagePixels, EnumFilter type)
     {
         int len = imagePixels.size() / 2;
 
         int newValue = 0;
 
-        if (type.equals(EnumFilterType.MEDIAN))
+        if (type.equals(EnumFilter.MEDIAN))
         {
             newValue = imagePixels.get(len + 1);
         }
-        else if (type.equals(EnumFilterType.MEAN))
+        else if (type.equals(EnumFilter.MEAN))
         {
             int sum = imagePixels.stream().mapToInt(i -> i.intValue()).sum();
             newValue = sum / imagePixels.size();

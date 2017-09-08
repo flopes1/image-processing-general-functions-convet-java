@@ -9,14 +9,18 @@ public class Main
     {
 
         String imagePath = Main.class.getClassLoader().getResource("1.jpg").getPath();
-        String projectRootPath = System.getProperty("user.dir");
+        // String projectRootPath = System.getProperty("user.dir");
+        // String destinyPath = imagePath.substring(0, imagePath.lastIndexOf('/'));
+        String destinyPath = "D:/Dev/eclipse/workspace/image-processing/src/main/resources";
 
         try
         {
             ImageProcessing imgProces = new ImageProcessing(imagePath);
-            // imgProces.showImage();
             imgProces.applyMedianFilter(3);
-            imgProces.saveImage(projectRootPath + "\\_1.jpg");
+            imgProces.applyHighBoostFilter(0.75);
+            imgProces.showNewImage();
+            imgProces.showOriginalImage();
+            // imgProces.saveImage(destinyPath + "\\1_.jpg");
 
         }
         catch (IOException e)

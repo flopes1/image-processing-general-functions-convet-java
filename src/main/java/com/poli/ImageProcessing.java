@@ -13,14 +13,15 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import com.poli.model.EnumFilterType;
+import com.poli.model.EnumFilterType.EnumFilter;
 import com.poli.model.Mask;
 
 public class ImageProcessing
 {
 
     private String imagePath;
-    private BufferedImage image;
+    private BufferedImage originalImage;
+    private BufferedImage newImage;
     private Mask mask;
 
     public ImageProcessing(String imagePath) throws IOException
@@ -31,11 +32,11 @@ public class ImageProcessing
 
     public void convert2GrayScale()
     {
-        BufferedImage grayImage = new BufferedImage(this.getImage().getWidth(), this.getImage().getHeight(),
-                BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage grayImage = new BufferedImage(this.getOriginalImage().getWidth(),
+                this.getOriginalImage().getHeight(), BufferedImage.TYPE_BYTE_GRAY);
         ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-        op.filter(this.getImage(), grayImage);
-        this.setImage(grayImage);
+        op.filter(this.getOriginalImage(), grayImage);
+        this.setNewImage(grayImage);
     }
 
     /**
@@ -52,49 +53,106 @@ public class ImageProcessing
             throw new IllegalArgumentException("O parametro deve ser maior que zero e impar");
         }
 
-        this.mask = new Mask(maskRate, EnumFilterType.MEDIAN);
+        this.mask = new Mask(maskRate, EnumFilter.MEDIAN);
         this.applyImageFilter();
+    }
+
+    public void applyHighBoostFilter(double d)
+    {
+        for (int row = 0; row < this.getNewImage().getHeight(); row++)
+        {
+            for (int col = 0; col < this.getNewImage().getWidth(); col++)
+            {
+                int firstImagePixel = this.getOriginalImage().getRGB(col, row);
+                firstImagePixel = (firstImagePixel & 0x000000ff);
+                int secondImagePixel = this.getNewImage().getRGB(col, row);
+                secondImagePixel = (secondImagePixel & 0x000000ff);
+
+                // int resultPixel = 0;
+                //
+                // if (op.equals(EnumOperationType.MINUS))
+                // {
+                //
+                // }
+                // else if (op.equals(EnumOperationType.PLUS))
+                // {
+                // resultPixel = firstImagePixel + secondImagePixel;
+                // }
+                //
+                // if (resultPixel < 0)
+                // {
+                // resultPixel = 0;
+                // }
+
+                if (secondImagePixel > firstImagePixel)
+                {
+                    try
+                    {
+                        int resultPixel = (int)(firstImagePixel + (d * (secondImagePixel - firstImagePixel)));
+                        if (resultPixel > 255)
+                        {
+                            resultPixel = 255;
+                        }
+                        Color color = new Color(resultPixel, resultPixel, resultPixel);
+                        this.getNewImage().setRGB(col, row, color.getRGB());
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println(e.getMessage());
+                    }
+                }
+
+            }
+        }
 
     }
 
     private void applyImageFilter()
     {
-        for (int row = 0; row < this.image.getHeight(); row++)
+        for (int row = 0; row < this.newImage.getHeight(); row++)
         {
-            for (int col = 0; col < this.image.getWidth(); col++)
+            for (int col = 0; col < this.newImage.getWidth(); col++)
             {
-                if (this.getMask().isValidRegion(row, col, this.image.getHeight(), this.image.getWidth()))
+                if (this.getMask().isValidRegion(row, col, this.newImage.getHeight(), this.newImage.getWidth()))
                 {
-                    int rateMid = this.mask.getRate() / 2;
+                    int rate = this.getMask().getRate();
+                    int rateMid = rate / 2;
 
-                    int result = this.getMask().calculateMaskResult(this.getImage().getSubimage(col - rateMid,
-                            row - rateMid, this.getMask().getRate(), this.getMask().getRate()));
+                    int result = this.getMask().calculateMaskResult(
+                            this.getNewImage().getSubimage(col - rateMid, row - rateMid, rate, rate));
                     Color color = new Color(result, result, result);
-                    this.getImage().setRGB(col, row, color.getRGB());
+                    this.getNewImage().setRGB(col, row, color.getRGB());
                 }
 
             }
         }
     }
 
-    public void showImage()
+    public void showOriginalImage()
+    {
+        this.showImage(this.getOriginalImage());
+    }
+
+    public void showNewImage()
+    {
+        this.showImage(this.getNewImage());
+    }
+
+    private void showImage(BufferedImage image)
     {
         JFrame frame = new JFrame();
         frame.getContentPane().setLayout(new FlowLayout());
-        frame.getContentPane().add(new JLabel(new ImageIcon(this.getImage())));
+        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
         frame.pack();
         frame.setVisible(true);
-
     }
 
     public void saveImage(String path) throws IOException
     {
-        // String fullPath = path.substring(0, path.lastIndexOf('\\') + 1) + "\\";
         String extension = path.substring(path.lastIndexOf('.') + 1);
-        // String name = path.substring(path.lastIndexOf('\\') + 1, path.lastIndexOf('.'));
 
         File outputfile = new File(path);
-        ImageIO.write(this.getImage(), extension, outputfile);
+        ImageIO.write(this.getNewImage(), extension, outputfile);
     }
 
     private void loadImage(String imagePath) throws IOException
@@ -106,8 +164,8 @@ public class ImageProcessing
             throw new IllegalArgumentException("The image does not exists");
         }
 
-        BufferedImage image = ImageIO.read(imageFile);
-        this.setImage(image);
+        this.setOriginalImage(ImageIO.read(imageFile));
+        this.setNewImage(ImageIO.read(imageFile));
     }
 
     public String getImagePath()
@@ -120,14 +178,24 @@ public class ImageProcessing
         this.imagePath = imagePath;
     }
 
-    public BufferedImage getImage()
+    public BufferedImage getOriginalImage()
     {
-        return image;
+        return originalImage;
     }
 
-    public void setImage(BufferedImage image)
+    public void setOriginalImage(BufferedImage image)
     {
-        this.image = image;
+        this.originalImage = image;
+    }
+
+    public BufferedImage getNewImage()
+    {
+        return newImage;
+    }
+
+    public void setNewImage(BufferedImage image)
+    {
+        this.newImage = image;
     }
 
     public Mask getMask()
