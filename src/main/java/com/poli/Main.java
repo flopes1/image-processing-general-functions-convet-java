@@ -1,37 +1,45 @@
 package com.poli;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+
+import com.poli.model.EnumFilterType.EnumFilter;
 
 public class Main
 {
 
-	public static void main(String[] args)
-	{
+    public static void main(String[] args)
+    {
 
-		String imagePath = Main.class.getClassLoader().getResource("1.jpg").getPath();
-		// String projectRootPath = System.getProperty("user.dir");
-		// String destinyPath = imagePath.substring(0, imagePath.lastIndexOf('/'));
-		String destinyPath = "D:/Dev/eclipse/workspace/image-processing/src/main/resources";
+        ClassLoader classLoader = Main.class.getClassLoader();
+        File imageFile = new File(classLoader.getResource("1.png").getFile());
 
-		try
-		{
-			// Nos filtros mediano e Kuwahara o parametro e o tamanho da mascara
-			// EX: 3 : a mascara ira ter um tamanho 3x3
-			// No filtro high boost 
-			ImageProcessing imgProces = new ImageProcessing(imagePath);
-			// imgProces.applyMedianFilter(3);
-			// imgProces.applyHighBoostFilter(0.85);
-			imgProces.applyKuwaharaFilter(9);
-			imgProces.showNewImage();
-			//imgProces.showOriginalImage();
-			// imgProces.saveImage(destinyPath + "/1_.jpg");
+        // String sourceImage = "source/1.jpg";
+        // String destinyPath = "dentiny path";
 
-		}
-		catch (IOException e)
-		{
-			System.err.println(e.getMessage());
-		}
+        try
+        {
 
-	}
+            String sourceImagePath = URLDecoder.decode(imageFile.getPath(), "UTF-8");
+            String resourcePath = URLDecoder.decode(imageFile.getParent(), "UTF-8");
+
+            ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
+
+            // filtro e parametros utilizados para gerar a primeira imagem
+            imgProces.applyHighBoostFilter(1, EnumFilter.MEDIAN);
+
+            // filtro e parametros utilizados para gerar a segunda imagem
+            //imgProces.applyHighBoostFilter(1, EnumFilter.MEDIAN);
+
+            imgProces.saveImage(resourcePath + "/1__.png");
+
+        }
+        catch (IOException e)
+        {
+            System.err.println(e.getMessage());
+        }
+
+    }
 
 }

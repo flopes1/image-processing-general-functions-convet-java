@@ -5,7 +5,7 @@ public class EnumFilterType
 
     public enum EnumFilter
     {
-        MEDIAN, MEAN, MODE, KUWAHARA
+        MEDIAN, MEAN, MODE, KUWAHARA, LAPLACIAN, HIGH_BOOST
     };
 
     public enum Type
@@ -20,9 +20,13 @@ public class EnumFilterType
         {
             return Type.LOW_PASS;
         }
-        else if(filter.equals(EnumFilter.KUWAHARA))
+        else if (filter.equals(EnumFilter.KUWAHARA))
         {
-        		return Type.ADAPTATIVE;
+            return Type.ADAPTATIVE;
+        }
+        else if (filter.equals(EnumFilter.LAPLACIAN))
+        {
+            return Type.HIGH_PASS;
         }
 
         return null;
