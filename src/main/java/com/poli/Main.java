@@ -25,14 +25,10 @@ public class Main
             String resourcePath = URLDecoder.decode(imageFile.getParent(), "UTF-8");
 
             ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
+            
+            imgProces.applyIdealHighPassFilter(10);
 
-            // filtro e parametros utilizados para gerar a primeira imagem
-            imgProces.applyHighBoostFilter(1, EnumFilter.MEDIAN);
-
-            // filtro e parametros utilizados para gerar a segunda imagem
-            //imgProces.applyHighBoostFilter(1, EnumFilter.MEDIAN);
-
-            imgProces.saveImage(resourcePath + "/1__.png");
+            imgProces.saveImage(resourcePath + "/1_.png");
 
         }
         catch (IOException e)
