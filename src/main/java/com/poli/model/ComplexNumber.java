@@ -26,6 +26,11 @@ public class ComplexNumber
         return Math.hypot(real, imaginary);
     }
 
+    public double getPhase()
+    {
+        return Math.atan(this.imaginary / this.real);
+    }
+
     public ComplexNumber sum(ComplexNumber complexNumber)
     {
         double real = this.real + complexNumber.real;

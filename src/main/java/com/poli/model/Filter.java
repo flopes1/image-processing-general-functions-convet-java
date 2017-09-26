@@ -224,9 +224,9 @@ public class Filter
         ComplexNumber[][] fourierTransform = FourierTransform.discretTransform(this.originalImage);
 
         BufferedImage image = this.buildImage(fourierTransform);
-        this.newImage = image;
+        // this.newImage = image;
 
-        return null;
+        return image;
     }
 
     private BufferedImage buildImage(ComplexNumber[][] fourierTransform)
@@ -240,13 +240,14 @@ public class Filter
             {
                 ComplexNumber number = fourierTransform[row][col];
                 double magnitude = number.getAbsolutValue();
-                int intPart = (int) magnitude;
+                // int intPart = (int) Math.log10(1 + magnitude);
+                int intPart = (int) (magnitude > 255 ? 255 : magnitude);
                 Color color = new Color(intPart, intPart, intPart);
                 image.setRGB(col, row, color.getRGB());
             }
         }
 
-        return null;
+        return image;
     }
 
 }

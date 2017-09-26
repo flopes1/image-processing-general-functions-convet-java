@@ -13,7 +13,7 @@ public class Main
     {
 
         ClassLoader classLoader = Main.class.getClassLoader();
-        File imageFile = new File(classLoader.getResource("1.png").getFile());
+        File imageFile = new File(classLoader.getResource("2.jpg").getFile());
 
         // String sourceImage = "source/1.jpg";
         // String destinyPath = "dentiny path";
@@ -28,7 +28,7 @@ public class Main
             
             imgProces.applyIdealHighPassFilter(10);
 
-            imgProces.saveImage(resourcePath + "/1_.png");
+            imgProces.saveImage(resourcePath + "/2_.jpg");
 
         }
         catch (IOException e)
