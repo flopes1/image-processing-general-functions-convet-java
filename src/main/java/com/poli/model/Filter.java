@@ -5,11 +5,15 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ietf.jgss.Oid;
+
 import com.poli.model.EnumFilterType.EnumFilter;
+import com.poli.model.EnumFilterType.Type;
 
 public class Filter
 {
     private Mask mask;
+    private ActivationFunction activationFunction;
     private BufferedImage originalImage;
     private BufferedImage newImage;
 
@@ -223,10 +227,65 @@ public class Filter
     {
         ComplexNumber[][] fourierTransform = FourierTransform.discretTransform(this.originalImage);
 
-        BufferedImage image = this.buildImage(fourierTransform);
-        // this.newImage = image;
+        this.applyActivationFunction(fourierTransform, diameter);
 
-        return image;
+        ComplexNumber[][] inverseFourierTransform = FourierTransform.discretInverseTransform(fourierTransform);
+
+        BufferedImage highPassImage = this.buildImage(inverseFourierTransform);
+
+        this.apply(highPassImage);
+
+        return this.newImage;
+    }
+
+    private void apply(BufferedImage highPassImage)
+    {
+
+        for (int row = 0; row < this.newImage.getHeight(); row++)
+        {
+            for (int col = 0; col < this.newImage.getWidth(); col++)
+            {
+                int original = this.originalImage.getRGB(col, row);
+                original = FourierTransform.parsePixelValue(original);
+
+                int highValue = highPassImage.getRGB(col, row);
+                highValue = FourierTransform.parsePixelValue(highValue);
+
+                int resultPixel = original - highValue;
+
+                resultPixel = resultPixel > 255 ? 255 : resultPixel;
+                resultPixel = resultPixel < 0 ? 0 : resultPixel;
+
+                Color color = new Color(resultPixel, resultPixel, resultPixel);
+                this.newImage.setRGB(col, row, color.getRGB());
+
+            }
+        }
+
+    }
+
+    private void applyActivationFunction(ComplexNumber[][] fourierTransform, int diameter)
+    {
+
+        this.activationFunction = new ActivationFunction(EnumFilter.DIAMETER, Type.HIGH_PASS);
+
+        double m = fourierTransform.length;
+        double n = fourierTransform[0].length;
+
+        int centerRow = (int) (m / (double) 2);
+        int centerCol = (int) (n / (double) 2);
+
+        for (int u = 0; u < m; u++)
+        {
+            for (int v = 0; v < n; v++)
+            {
+                double distance = Math.hypot(u - centerRow, v - centerCol);
+                ComplexNumber resultActivation = this.activationFunction.activate(fourierTransform[u][v], distance,
+                        diameter);
+                fourierTransform[u][v] = resultActivation;
+            }
+        }
+
     }
 
     private BufferedImage buildImage(ComplexNumber[][] fourierTransform)
@@ -239,9 +298,17 @@ public class Filter
             for (int col = 0; col < fourierTransform[0].length; col++)
             {
                 ComplexNumber number = fourierTransform[row][col];
-                double magnitude = number.getAbsolutValue();
+                double real = number.real();
+                int intValue = (int) real;
+                double floatValue = real - intValue;
+
+                double magnitude = floatValue > 0.5 ? (intValue + 1) : intValue;
                 // int intPart = (int) Math.log10(1 + magnitude);
+                magnitude *= Math.pow(-1, col + row);
+
                 int intPart = (int) (magnitude > 255 ? 255 : magnitude);
+                intPart = intPart < 0 ? 0 : intPart;
+
                 Color color = new Color(intPart, intPart, intPart);
                 image.setRGB(col, row, color.getRGB());
             }

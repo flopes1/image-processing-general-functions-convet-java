@@ -1,5 +1,6 @@
 package com.poli;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -83,7 +84,7 @@ public class ImageProcessing
         this.filter = new Filter(this.newImage);
         this.newImage = this.filter.applyIdealHighPassFilter(diameter);
     }
-
+    
     public void convert2GrayScale()
     {
         BufferedImage grayImage = new BufferedImage(this.getOriginalImage().getWidth(),

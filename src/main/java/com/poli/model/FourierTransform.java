@@ -17,7 +17,6 @@ public class FourierTransform
         {
             for (int v = 0; v < n; v++)
             {
-
                 double sumReal = 0;
                 double sumImg = 0;
 
@@ -27,7 +26,7 @@ public class FourierTransform
                     {
 
                         int functionInput = parsePixelValue(fxy.getRGB(y, x));
-                        // functionInput *= Math.pow(-1, x + y);
+                        functionInput *= Math.pow(-1, x + y);
 
                         double imgArgs = 2 * Math.PI
                                 * (((double) u * (double) x / (double) m) + (((double) v * (double) y) / (double) n));
@@ -38,6 +37,7 @@ public class FourierTransform
                         ComplexNumber complexNumber = new ComplexNumber(real, img);
 
                         complexNumber = complexNumber.mult(functionInput);
+                        complexNumber = complexNumber.div(m * n);
                         sumReal += complexNumber.real();
                         sumImg += complexNumber.imaginary();
                     }
@@ -50,17 +50,18 @@ public class FourierTransform
         return result;
     }
 
-    private static int parsePixelValue(int rgb)
+    public static int parsePixelValue(int rgb)
     {
         return (rgb & 0x000000ff);
     }
 
-    public static ComplexNumber[][] discretInverseTransform(ComplexNumber[][] Fwu)
+    public static ComplexNumber[][] discretInverseTransform(ComplexNumber[][] Fuv)
     {
 
-        double m = Fwu.length;
-        double n = Fwu[0].length;
+        double m = Fuv.length;
+        double n = Fuv[0].length;
 
+        // BufferedImage result = new BufferedImage((int) n, (int) m, BufferedImage.TYPE_BYTE_GRAY);
         ComplexNumber[][] result = new ComplexNumber[(int) m][(int) n];
 
         for (int u = 0; u < m; u++)
@@ -76,8 +77,7 @@ public class FourierTransform
                     for (int y = 0; y < n; y++)
                     {
 
-                        // ??
-                        int functionInput = (int) (Fwu[x][y].real() + Fwu[x][y].imaginary());
+                        ComplexNumber input = Fuv[x][y];
 
                         double imgArgs = 2.0 * Math.PI
                                 * (((double) u * (double) x / m) + (((double) v * (double) y) / n));
@@ -86,11 +86,10 @@ public class FourierTransform
                         double img = Math.sin(imgArgs);
 
                         ComplexNumber complexNumber = new ComplexNumber(real, img);
-                        complexNumber = complexNumber.mult(functionInput);
-                        complexNumber = complexNumber.div(m * n);
-                        
-                        sumReal += complexNumber.real();
-                        sumImg += complexNumber.imaginary();
+                        ComplexNumber complexResult = complexNumber.mult(input);
+
+                        sumReal += complexResult.real();
+                        sumImg += complexResult.imaginary();
                     }
                 }
 

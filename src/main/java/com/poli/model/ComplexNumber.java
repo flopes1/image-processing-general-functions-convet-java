@@ -2,8 +2,8 @@ package com.poli.model;
 
 public class ComplexNumber
 {
-    private final double real;
-    private final double imaginary;
+    private double real;
+    private double imaginary;
 
     public ComplexNumber(double real, double imag)
     {
@@ -19,6 +19,16 @@ public class ComplexNumber
     public double imaginary()
     {
         return imaginary;
+    }
+
+    public void setReal(double real)
+    {
+        this.real = real;
+    }
+
+    public void setImaginary(double img)
+    {
+        this.imaginary = img;
     }
 
     public double getAbsolutValue()

@@ -15,24 +15,29 @@ public class ActivationFunction
         this.type = type;
     }
 
-    public double activate(double input, int diameter)
+    public ComplexNumber activate(ComplexNumber number, double distance, int diameter)
+    {
+        double H = this.getActivationFunction(distance, diameter);
+
+        return number.mult(H);
+    }
+
+    private double getActivationFunction(double distance, int diameter)
     {
         double result = 0;
 
         if (this.filter.equals(EnumFilter.DIAMETER))
         {
-
             if (this.type.equals(Type.HIGH_PASS))
             {
-                result = input <= diameter ? 0 : 1;
+                result = distance <= diameter ? 0 : 1;
             }
             else if (this.type.equals(Type.LOW_PASS))
             {
-                result = input <= diameter ? 1 : 0;
+                result = distance <= diameter ? 1 : 0;
             }
 
         }
-
         return result;
     }
 
