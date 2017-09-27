@@ -5,8 +5,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ietf.jgss.Oid;
-
 import com.poli.model.EnumFilterType.EnumFilter;
 import com.poli.model.EnumFilterType.Type;
 
@@ -225,9 +223,22 @@ public class Filter
 
     public BufferedImage applyIdealHighPassFilter(int diameter)
     {
+        this.applyFrequencyFilter(diameter, Type.HIGH_PASS, EnumFilter.DIAMETER);
+        return this.newImage;
+    }
+    
+    public BufferedImage applyButterworthHighPassFilter(int diameter, int n)
+    {
+        this.applyFrequencyFilter(diameter, Type.HIGH_PASS, EnumFilter.BUTTERWORTH);
+        return this.newImage;
+
+    }
+
+    public void applyFrequencyFilter(int diameter, Type type, EnumFilter filter)
+    {
         ComplexNumber[][] fourierTransform = FourierTransform.discretTransform(this.originalImage);
 
-        this.applyActivationFunction(fourierTransform, diameter);
+        this.applyActivationFunction(fourierTransform, diameter, type, filter);
 
         ComplexNumber[][] inverseFourierTransform = FourierTransform.discretInverseTransform(fourierTransform);
 
@@ -235,7 +246,6 @@ public class Filter
 
         this.apply(highPassImage);
 
-        return this.newImage;
     }
 
     private void apply(BufferedImage highPassImage)
@@ -264,10 +274,10 @@ public class Filter
 
     }
 
-    private void applyActivationFunction(ComplexNumber[][] fourierTransform, int diameter)
+    private void applyActivationFunction(ComplexNumber[][] fourierTransform, int diameter, Type type, EnumFilter filter)
     {
-
-        this.activationFunction = new ActivationFunction(EnumFilter.DIAMETER, Type.HIGH_PASS);
+        System.err.println("------------------Aplicando função de ativação--------------------");
+        this.activationFunction = new ActivationFunction(filter, type);
 
         double m = fourierTransform.length;
         double n = fourierTransform[0].length;

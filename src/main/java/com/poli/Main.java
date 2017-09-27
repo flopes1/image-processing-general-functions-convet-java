@@ -4,15 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import com.poli.model.EnumFilterType.EnumFilter;
-
 public class Main
 {
 
     public static void main(String[] args)
     {
         ClassLoader classLoader = Main.class.getClassLoader();
-        File imageFile = new File(classLoader.getResource("1.jpg").getFile());
+        File imageFile = new File(classLoader.getResource("1.png").getFile());
 
         // String sourceImage = "source/1.jpg";
         // String destinyPath = "dentiny path";
@@ -24,9 +22,10 @@ public class Main
 
             ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
             // imgProces.convert2GrayScale();
-            imgProces.applyIdealHighPassFilter(10);
+            //imgProces.applyIdealHighPassFilter(30);
+            imgProces.applyButterworthHighPassFilter(30);
 
-            imgProces.saveImage(resourcePath + "/_1.jpg");
+            imgProces.saveImage(resourcePath + "/1_butter-30.png");
 
         }
         catch (IOException e)

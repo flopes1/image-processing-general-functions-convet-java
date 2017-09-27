@@ -85,6 +85,12 @@ public class ImageProcessing
         this.newImage = this.filter.applyIdealHighPassFilter(diameter);
     }
     
+    public void applyButterworthHighPassFilter(int diameter)
+    {
+        this.filter = new Filter(this.newImage);
+        this.newImage = this.filter.applyButterworthHighPassFilter(diameter, 2);
+    }
+    
     public void convert2GrayScale()
     {
         BufferedImage grayImage = new BufferedImage(this.getOriginalImage().getWidth(),

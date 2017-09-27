@@ -7,7 +7,7 @@ public class FourierTransform
 
     public static ComplexNumber[][] discretTransform(BufferedImage fxy)
     {
-
+        System.err.println("------------------Inicio da transformada discreta--------------------");
         ComplexNumber[][] result = new ComplexNumber[fxy.getHeight()][fxy.getWidth()];
 
         double m = fxy.getHeight();
@@ -42,7 +42,7 @@ public class FourierTransform
                         sumImg += complexNumber.imaginary();
                     }
                 }
-
+                // System.out.println("For externos: " + u + "X" + v);
                 result[u][v] = new ComplexNumber(sumReal, sumImg);
             }
         }
@@ -57,7 +57,7 @@ public class FourierTransform
 
     public static ComplexNumber[][] discretInverseTransform(ComplexNumber[][] Fuv)
     {
-
+        System.err.println("------------------Inicio da transformada discreta inversa --------------------");
         double m = Fuv.length;
         double n = Fuv[0].length;
 
@@ -92,7 +92,7 @@ public class FourierTransform
                         sumImg += complexResult.imaginary();
                     }
                 }
-
+                // System.out.println("For externos: " + u + "X" + v);
                 result[u][v] = new ComplexNumber(sumReal, sumImg);
             }
         }

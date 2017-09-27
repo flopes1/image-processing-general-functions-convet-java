@@ -5,7 +5,7 @@ public class EnumFilterType
 
     public enum EnumFilter
     {
-        MEDIAN, MEAN, MODE, KUWAHARA, LAPLACIAN, HIGH_BOOST, DIAMETER
+        MEDIAN, MEAN, MODE, KUWAHARA, LAPLACIAN, HIGH_BOOST, DIAMETER, BUTTERWORTH
     };
 
     public enum Type

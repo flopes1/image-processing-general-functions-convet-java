@@ -25,7 +25,7 @@ public class ActivationFunction
     private double getActivationFunction(double distance, int diameter)
     {
         double result = 0;
-
+        
         if (this.filter.equals(EnumFilter.DIAMETER))
         {
             if (this.type.equals(Type.HIGH_PASS))
@@ -38,6 +38,23 @@ public class ActivationFunction
             }
 
         }
+        else if(this.filter.equals(EnumFilter.BUTTERWORTH))
+        {
+            double scalar = 0;
+            if (this.type.equals(Type.HIGH_PASS))
+            {
+                scalar = (double)diameter / distance;
+            }
+            else if (this.type.equals(Type.LOW_PASS))
+            {
+                scalar = distance / (double)diameter;
+            }
+
+            int n = 2;
+            double scalarPow = Math.pow(scalar, 2 * n);
+            result = 1.0 / (1 + scalarPow);
+        }
+        
         return result;
     }
 
