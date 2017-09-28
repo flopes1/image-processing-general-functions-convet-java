@@ -156,13 +156,13 @@ public class Mask
             // newValue = sum / imagePixels.size();
             // newValue = oldValue - sum;
             newValue = sum;
-            newValue = this.normalizeValue(newValue, null, 0, 0);
+            newValue = this.normalizeValue(newValue);
         }
 
         return newValue;
     }
 
-    public int normalizeValue(int newValue, List<Integer> imagePixels, double max, double min)
+    public int normalizeValue(int newValue)
     {
         int value = newValue;// (int) (((double) newValue - min) * (double) 255 / (max - min));
 

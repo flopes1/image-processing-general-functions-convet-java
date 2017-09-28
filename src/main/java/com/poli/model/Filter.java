@@ -91,11 +91,11 @@ public class Filter
             this.applyMeanFilter(3);
         }
 
-        int[][] highPassFilter = this.getHighPassFilter(increaseRate);
+        int[][] highPassFilter = this.getHighPassFilter();
 
-        List<Integer> list = this.convert2List(highPassFilter);
-        double max = list.stream().mapToInt(i -> i).max().getAsInt();
-        double min = list.stream().mapToInt(i -> i).min().getAsInt();
+        // List<Integer> list = this.convert2List(highPassFilter);
+        // double max = list.stream().mapToInt(i -> i).max().getAsInt();
+        // double min = list.stream().mapToInt(i -> i).min().getAsInt();
 
         for (int row = 0; row < this.newImage.getHeight(); row++)
         {
@@ -108,7 +108,7 @@ public class Filter
 
                 int resultPixel = (int) ((increaseRate) * original - highValue);
 
-                resultPixel = this.mask.normalizeValue(resultPixel, list, max, min);
+                resultPixel = this.mask.normalizeValue(resultPixel);
 
                 Color color = new Color(resultPixel, resultPixel, resultPixel);
                 this.newImage.setRGB(col, row, color.getRGB());
@@ -134,7 +134,7 @@ public class Filter
         return list;
     }
 
-    private int[][] getHighPassFilter(double increaseRate)
+    private int[][] getHighPassFilter()
     {
         int[][] highPass = new int[this.originalImage.getWidth()][this.originalImage.getHeight()];
 
@@ -226,15 +226,38 @@ public class Filter
         this.applyFrequencyFilter(diameter, Type.HIGH_PASS, EnumFilter.DIAMETER);
         return this.newImage;
     }
-    
+
     public BufferedImage applyButterworthHighPassFilter(int diameter, int n)
     {
-        this.applyFrequencyFilter(diameter, Type.HIGH_PASS, EnumFilter.BUTTERWORTH);
+        this.applyFrequencyFilter(diameter, Type.LOW_PASS, EnumFilter.BUTTERWORTH);
+
+        int[][] highPassFilter = this.getHighPassFilter();
+
+        for (int row = 0; row < this.newImage.getHeight(); row++)
+        {
+            for (int col = 0; col < this.newImage.getWidth(); col++)
+            {
+                int original = this.originalImage.getRGB(col, row);
+                original = (original & 0x000000ff);
+
+                int highValue = highPassFilter[col][row];
+
+                int resultPixel = (int) (original - highValue);
+
+                resultPixel = resultPixel > 255 ? 255 : resultPixel;
+                resultPixel = resultPixel < 0 ? 0 : resultPixel;
+
+                Color color = new Color(resultPixel, resultPixel, resultPixel);
+                this.newImage.setRGB(col, row, color.getRGB());
+
+            }
+        }
+
         return this.newImage;
 
     }
 
-    public void applyFrequencyFilter(int diameter, Type type, EnumFilter filter)
+    private void applyFrequencyFilter(int diameter, Type type, EnumFilter filter)
     {
         ComplexNumber[][] fourierTransform = FourierTransform.discretTransform(this.originalImage);
 
@@ -242,13 +265,15 @@ public class Filter
 
         ComplexNumber[][] inverseFourierTransform = FourierTransform.discretInverseTransform(fourierTransform);
 
-        BufferedImage highPassImage = this.buildImage(inverseFourierTransform);
+        // this.newImage = this.buildImage(inverseFourierTransform, true);
 
-        this.apply(highPassImage);
+        this.newImage = this.buildImage(inverseFourierTransform, true);
+
+        // this.applyResultInOriginal(highPassImage);
 
     }
 
-    private void apply(BufferedImage highPassImage)
+    private void applyResultInOriginal(BufferedImage highPassImage)
     {
 
         for (int row = 0; row < this.newImage.getHeight(); row++)
@@ -298,7 +323,7 @@ public class Filter
 
     }
 
-    private BufferedImage buildImage(ComplexNumber[][] fourierTransform)
+    private BufferedImage buildImage(ComplexNumber[][] fourierTransform, boolean inverse)
     {
         BufferedImage image = new BufferedImage(fourierTransform[0].length, fourierTransform.length,
                 BufferedImage.TYPE_BYTE_GRAY);
@@ -308,12 +333,11 @@ public class Filter
             for (int col = 0; col < fourierTransform[0].length; col++)
             {
                 ComplexNumber number = fourierTransform[row][col];
-                double real = number.real();
+                double real = inverse ? number.real() : number.getAbsolutValue();
                 int intValue = (int) real;
                 double floatValue = real - intValue;
 
                 double magnitude = floatValue > 0.5 ? (intValue + 1) : intValue;
-                // int intPart = (int) Math.log10(1 + magnitude);
                 magnitude *= Math.pow(-1, col + row);
 
                 int intPart = (int) (magnitude > 255 ? 255 : magnitude);

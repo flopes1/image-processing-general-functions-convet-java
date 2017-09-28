@@ -37,13 +37,14 @@ public class FourierTransform
                         ComplexNumber complexNumber = new ComplexNumber(real, img);
 
                         complexNumber = complexNumber.mult(functionInput);
-                        complexNumber = complexNumber.div(m * n);
                         sumReal += complexNumber.real();
                         sumImg += complexNumber.imaginary();
                     }
                 }
                 // System.out.println("For externos: " + u + "X" + v);
-                result[u][v] = new ComplexNumber(sumReal, sumImg);
+                ComplexNumber finalPixel = new ComplexNumber(sumReal, sumImg);
+                finalPixel = finalPixel.div(Math.sqrt(m * n));
+                result[u][v] = finalPixel;
             }
         }
 
@@ -68,7 +69,6 @@ public class FourierTransform
         {
             for (int v = 0; v < n; v++)
             {
-
                 double sumReal = 0;
                 double sumImg = 0;
 
@@ -76,7 +76,6 @@ public class FourierTransform
                 {
                     for (int y = 0; y < n; y++)
                     {
-
                         ComplexNumber input = Fuv[x][y];
 
                         double imgArgs = 2.0 * Math.PI
@@ -93,7 +92,9 @@ public class FourierTransform
                     }
                 }
                 // System.out.println("For externos: " + u + "X" + v);
-                result[u][v] = new ComplexNumber(sumReal, sumImg);
+                ComplexNumber finalPixel = new ComplexNumber(sumReal, sumImg);
+                finalPixel = finalPixel.div(Math.sqrt(m * n));
+                result[u][v] = finalPixel;
             }
         }
 

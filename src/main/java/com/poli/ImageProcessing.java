@@ -1,6 +1,5 @@
 package com.poli;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
