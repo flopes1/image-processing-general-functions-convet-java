@@ -12,8 +12,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import com.poli.model.EnumFilterType.EnumFilter;
-import com.poli.model.Filter;
+import com.poli.model.filter.Filter;
+import com.poli.model.filter.EnumFilterType.EnumFilter;
 
 public class ImageProcessing
 {

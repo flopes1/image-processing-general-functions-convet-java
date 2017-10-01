@@ -11,78 +11,25 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        Runnable first = new Runnable()
+        File imageFile = new File(classLoader.getResource("1.png").getFile());
+
+        // String destinyPath = "dentiny path";
+        // String sourceImage = "source/1.jpg";
+
+        try
         {
+            String sourceImagePath = URLDecoder.decode(imageFile.getPath(), "UTF-8");
+            String resourcePath = URLDecoder.decode(imageFile.getParent(), "UTF-8");
 
-            @Override
-            public void run()
-            {
-                // TODO Auto-generated method stub
+            ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
 
-                File imageFile = new File(classLoader.getResource("1.png").getFile());
 
-                // String sourceImage = "source/1.jpg";
-                // String destinyPath = "dentiny path";
-
-                try
-                {
-                    String sourceImagePath = URLDecoder.decode(imageFile.getPath(), "UTF-8");
-                    String resourcePath = URLDecoder.decode(imageFile.getParent(), "UTF-8");
-
-                    ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
-                    // imgProces.applyIdealHighPassFilter(10);
-                    imgProces.applyButterworthHighPassFilter(20);
-
-                    imgProces.saveImage(resourcePath + "/1_.png");
-                    System.err.println("-------------- Fim Thread 1 ----------------");
-                }
-                catch (IOException e)
-                {
-                    System.err.println(e.getMessage());
-                }
-
-            }
-        };
-
-        Thread fisrtThread = new Thread(first);
-        fisrtThread.start();
-
-        Runnable second = new Runnable()
+            imgProces.saveImage(resourcePath + "/1_.png");
+        }
+        catch (IOException e)
         {
-
-            @Override
-            public void run()
-            {
-                // TODO Auto-generated method stub
-
-                File imageFile = new File(classLoader.getResource("2.png").getFile());
-
-                // String sourceImage = "source/1.jpg";
-                // String destinyPath = "dentiny path";
-
-                try
-                {
-                    String sourceImagePath = URLDecoder.decode(imageFile.getPath(), "UTF-8");
-                    String resourcePath = URLDecoder.decode(imageFile.getParent(), "UTF-8");
-
-                    ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
-                    // imgProces.applyIdealHighPassFilter(5);
-                    imgProces.applyButterworthHighPassFilter(25);
-
-                    System.err.println("-------------- Fim Thread 2 ----------------");
-                    imgProces.saveImage(resourcePath + "/2_.png");
-
-                }
-                catch (IOException e)
-                {
-                    System.err.println(e.getMessage());
-                }
-
-            }
-        };
-
-        Thread secondThread = new Thread(second);
-        secondThread.start();
+            e.printStackTrace();
+        }
 
     }
 

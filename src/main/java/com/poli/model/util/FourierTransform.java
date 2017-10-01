@@ -1,4 +1,4 @@
-package com.poli.model;
+package com.poli.model.util;
 
 import java.awt.image.BufferedImage;
 

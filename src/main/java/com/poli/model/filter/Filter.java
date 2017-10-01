@@ -1,12 +1,12 @@
-package com.poli.model;
+package com.poli.model.filter;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.poli.model.EnumFilterType.EnumFilter;
-import com.poli.model.EnumFilterType.Type;
+import com.poli.model.filter.EnumFilterType.EnumFilter;
+import com.poli.model.filter.EnumFilterType.Type;
+import com.poli.model.util.ComplexNumber;
+import com.poli.model.util.FourierTransform;
 
 public class Filter
 {
@@ -93,10 +93,6 @@ public class Filter
 
         int[][] highPassFilter = this.getHighPassFilter();
 
-        // List<Integer> list = this.convert2List(highPassFilter);
-        // double max = list.stream().mapToInt(i -> i).max().getAsInt();
-        // double min = list.stream().mapToInt(i -> i).min().getAsInt();
-
         for (int row = 0; row < this.newImage.getHeight(); row++)
         {
             for (int col = 0; col < this.newImage.getWidth(); col++)
@@ -117,21 +113,6 @@ public class Filter
         }
 
         return this.newImage;
-    }
-
-    private List<Integer> convert2List(int[][] highPassFilter)
-    {
-
-        List<Integer> list = new ArrayList<Integer>();
-        for (int i = 0; i < highPassFilter.length; i++)
-        {
-            for (int j = 0; j < highPassFilter[i].length; j++)
-            {
-                list.add(highPassFilter[i][j]);
-            }
-        }
-
-        return list;
     }
 
     private int[][] getHighPassFilter()
@@ -270,32 +251,6 @@ public class Filter
         this.newImage = this.buildImage(inverseFourierTransform, true);
 
         // this.applyResultInOriginal(highPassImage);
-
-    }
-
-    private void applyResultInOriginal(BufferedImage highPassImage)
-    {
-
-        for (int row = 0; row < this.newImage.getHeight(); row++)
-        {
-            for (int col = 0; col < this.newImage.getWidth(); col++)
-            {
-                int original = this.originalImage.getRGB(col, row);
-                original = FourierTransform.parsePixelValue(original);
-
-                int highValue = highPassImage.getRGB(col, row);
-                highValue = FourierTransform.parsePixelValue(highValue);
-
-                int resultPixel = original - highValue;
-
-                resultPixel = resultPixel > 255 ? 255 : resultPixel;
-                resultPixel = resultPixel < 0 ? 0 : resultPixel;
-
-                Color color = new Color(resultPixel, resultPixel, resultPixel);
-                this.newImage.setRGB(col, row, color.getRGB());
-
-            }
-        }
 
     }
 

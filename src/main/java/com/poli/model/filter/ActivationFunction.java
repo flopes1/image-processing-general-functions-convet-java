@@ -1,7 +1,8 @@
-package com.poli.model;
+package com.poli.model.filter;
 
-import com.poli.model.EnumFilterType.EnumFilter;
-import com.poli.model.EnumFilterType.Type;
+import com.poli.model.filter.EnumFilterType.EnumFilter;
+import com.poli.model.filter.EnumFilterType.Type;
+import com.poli.model.util.ComplexNumber;
 
 public class ActivationFunction
 {

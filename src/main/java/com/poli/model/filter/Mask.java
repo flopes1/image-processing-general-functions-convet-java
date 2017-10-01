@@ -1,4 +1,4 @@
-package com.poli.model;
+package com.poli.model.filter;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.poli.model.EnumFilterType.EnumFilter;
-import com.poli.model.EnumFilterType.Type;
+import com.poli.model.filter.EnumFilterType.EnumFilter;
+import com.poli.model.filter.EnumFilterType.Type;
 
 public class Mask
 {

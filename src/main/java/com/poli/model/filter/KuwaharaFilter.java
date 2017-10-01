@@ -1,4 +1,4 @@
-package com.poli.model;
+package com.poli.model.filter;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
