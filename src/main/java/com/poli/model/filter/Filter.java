@@ -1,8 +1,8 @@
 package com.poli.model.filter;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import com.poli.model.Image;
 import com.poli.model.filter.EnumFilterType.EnumFilter;
 import com.poli.model.filter.EnumFilterType.Type;
 import com.poli.model.util.ComplexNumber;
@@ -12,21 +12,16 @@ public class Filter
 {
     private Mask mask;
     private ActivationFunction activationFunction;
-    private BufferedImage originalImage;
-    private BufferedImage newImage;
+    private Image originalImage;
+    private Image newImage;
 
-    public Filter(BufferedImage image)
+    public Filter(Image image)
     {
         this.originalImage = image;
-        this.newImage = this.cloneImage();
+        this.newImage = this.originalImage.cloneImage();
     }
 
-    private BufferedImage cloneImage()
-    {
-        return this.originalImage.getSubimage(0, 0, this.originalImage.getWidth(), this.originalImage.getHeight());
-    }
-
-    public BufferedImage applyMedianFilter(int maskRate)
+    public Image applyMedianFilter(int maskRate)
     {
 
         if (maskRate < 0 || (maskRate % 2) == 0)
@@ -40,7 +35,7 @@ public class Filter
         return this.newImage;
     }
 
-    public BufferedImage applyMeanFilter(int maskRate)
+    public Image applyMeanFilter(int maskRate)
     {
 
         if (maskRate < 0 || (maskRate % 2) == 0)
@@ -55,7 +50,7 @@ public class Filter
     }
 
     @Deprecated
-    public BufferedImage applyLaplaceFilter(int rate)
+    public Image applyLaplaceFilter(int rate)
     {
         this.mask = new Mask(rate, EnumFilter.LAPLACIAN);
         this.applyImageFilter();
@@ -63,7 +58,7 @@ public class Filter
         return this.newImage;
     }
 
-    public BufferedImage applyKuwaharaFilter(int maskRate)
+    public Image applyKuwaharaFilter(int maskRate)
     {
         if (maskRate < 0 || (maskRate % 2) == 0)
         {
@@ -76,7 +71,7 @@ public class Filter
         return this.newImage;
     }
 
-    public BufferedImage applyHighBoostFilter(double increaseRate, EnumFilter lowPassFilter)
+    public Image applyHighBoostFilter(double increaseRate, EnumFilter lowPassFilter)
     {
         if (lowPassFilter.equals(EnumFilter.MEDIAN))
         {
@@ -97,8 +92,7 @@ public class Filter
         {
             for (int col = 0; col < this.newImage.getWidth(); col++)
             {
-                int original = this.originalImage.getRGB(col, row);
-                original = (original & 0x000000ff);
+                int original = this.originalImage.getPixel(row, col);
 
                 int highValue = highPassFilter[col][row];
 
@@ -106,8 +100,7 @@ public class Filter
 
                 resultPixel = this.mask.normalizeValue(resultPixel);
 
-                Color color = new Color(resultPixel, resultPixel, resultPixel);
-                this.newImage.setRGB(col, row, color.getRGB());
+                this.newImage.setPixel(row, col, resultPixel);
 
             }
         }
@@ -123,11 +116,9 @@ public class Filter
         {
             for (int col = 0; col < this.newImage.getWidth(); col++)
             {
-                int original = this.originalImage.getRGB(col, row);
-                original = (original & 0x000000ff);
+                int original = this.originalImage.getPixel(row, col);
 
-                int lowPass = this.newImage.getRGB(col, row);
-                lowPass = (lowPass & 0x000000ff);
+                int lowPass = this.newImage.getPixel(row, col);
 
                 int value = (int) (lowPass - original);
                 highPass[col][row] = value;
@@ -142,7 +133,7 @@ public class Filter
         int rate = this.mask.getRate();
         int rateMid = (rate - 1) / 2;
 
-        BufferedImage padding = this.getPeddingImg();
+        Image padding = this.getPeddingImg();
 
         for (int row = 0; row < padding.getHeight(); row++)
         {
@@ -151,9 +142,8 @@ public class Filter
                 if (this.mask.isValidRegion(row, col, padding.getHeight(), padding.getWidth()))
                 {
                     int result = this.mask
-                            .calculateMaskResult(padding.getSubimage(col - rateMid, row - rateMid, rate, rate));
-                    Color color = new Color(result, result, result);
-                    padding.setRGB(col, row, color.getRGB());
+                            .calculateMaskResult(padding.getSubimage(row - rateMid, col - rateMid, rate, rate));
+                    padding.setPixel(row, col, result);
                 }
             }
         }
@@ -161,7 +151,7 @@ public class Filter
         this.newImage = this.removePadding(padding);
     }
 
-    private BufferedImage removePadding(BufferedImage padding)
+    private Image removePadding(Image padding)
     {
         int paddingRate = this.mask.getRate();
         paddingRate = (paddingRate - 1) / 2;
@@ -169,13 +159,14 @@ public class Filter
         return padding.getSubimage(paddingRate, paddingRate, this.newImage.getWidth(), this.newImage.getHeight());
     }
 
-    private BufferedImage getPeddingImg()
+    private Image getPeddingImg()
     {
         int rate = this.mask.getRate();
         int rateMid = (rate - 1) / 2;
 
-        BufferedImage padding = new BufferedImage(this.newImage.getWidth() + rate - 1,
-                this.newImage.getHeight() + rate - 1, BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage pad = new BufferedImage(this.newImage.getWidth() + rate - 1, this.newImage.getHeight() + rate - 1,
+                BufferedImage.TYPE_BYTE_GRAY);
+        Image padding = new Image(pad);
 
         for (int row = 0; row < this.newImage.getHeight() + rate - 1; row++)
         {
@@ -184,16 +175,12 @@ public class Filter
                 if (this.mask.isValidRegion(row, col, this.newImage.getHeight() + rate - 1,
                         this.newImage.getWidth() + rate - 1))
                 {
-                    int pixel = this.newImage.getRGB(col - rateMid, row - rateMid);
-                    pixel = (pixel & 0x000000ff);
-                    // pixel = 150;
-                    Color color = new Color(pixel, pixel, pixel);
-                    padding.setRGB(col, row, color.getRGB());
+                    int pixel = this.newImage.getPixel(row - rateMid, col - rateMid);
+                    padding.setPixel(row, col, pixel);
                 }
                 else
                 {
-                    Color color = new Color(0, 0, 0);
-                    padding.setRGB(col, row, color.getRGB());
+                    padding.setPixel(row, col, 0);
                 }
 
             }
@@ -202,13 +189,13 @@ public class Filter
         return padding;
     }
 
-    public BufferedImage applyIdealHighPassFilter(int diameter)
+    public Image applyIdealHighPassFilter(int diameter)
     {
         this.applyFrequencyFilter(diameter, Type.HIGH_PASS, EnumFilter.DIAMETER);
         return this.newImage;
     }
 
-    public BufferedImage applyButterworthHighPassFilter(int diameter, int n)
+    public Image applyButterworthHighPassFilter(int diameter, int n)
     {
         this.applyFrequencyFilter(diameter, Type.LOW_PASS, EnumFilter.BUTTERWORTH);
 
@@ -218,8 +205,7 @@ public class Filter
         {
             for (int col = 0; col < this.newImage.getWidth(); col++)
             {
-                int original = this.originalImage.getRGB(col, row);
-                original = (original & 0x000000ff);
+                int original = this.originalImage.getPixel(row, col);
 
                 int highValue = highPassFilter[col][row];
 
@@ -228,8 +214,7 @@ public class Filter
                 resultPixel = resultPixel > 255 ? 255 : resultPixel;
                 resultPixel = resultPixel < 0 ? 0 : resultPixel;
 
-                Color color = new Color(resultPixel, resultPixel, resultPixel);
-                this.newImage.setRGB(col, row, color.getRGB());
+                this.newImage.setPixel(row, col, resultPixel);
 
             }
         }
@@ -278,10 +263,12 @@ public class Filter
 
     }
 
-    private BufferedImage buildImage(ComplexNumber[][] fourierTransform, boolean inverse)
+    private Image buildImage(ComplexNumber[][] fourierTransform, boolean inverse)
     {
-        BufferedImage image = new BufferedImage(fourierTransform[0].length, fourierTransform.length,
+        BufferedImage bfImage = new BufferedImage(fourierTransform[0].length, fourierTransform.length,
                 BufferedImage.TYPE_BYTE_GRAY);
+
+        Image image = new Image(bfImage);
 
         for (int row = 0; row < fourierTransform.length; row++)
         {
@@ -298,8 +285,7 @@ public class Filter
                 int intPart = (int) (magnitude > 255 ? 255 : magnitude);
                 intPart = intPart < 0 ? 0 : intPart;
 
-                Color color = new Color(intPart, intPart, intPart);
-                image.setRGB(col, row, color.getRGB());
+                image.setPixel(row, col, intPart);
             }
         }
 

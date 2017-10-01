@@ -1,11 +1,11 @@
 package com.poli.model.filter;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.poli.model.Image;
 import com.poli.model.filter.EnumFilterType.EnumFilter;
 import com.poli.model.filter.EnumFilterType.Type;
 
@@ -94,26 +94,25 @@ public class Mask
         return (row > (rateMid - 1) && col > (rateMid - 1)) && (row < (rows - (rateMid))) && (col < (cols - (rateMid)));
     }
 
-    public int calculateMaskResult(BufferedImage subimage)
+    public int calculateMaskResult(Image image)
     {
         int newValue = -1;
 
         if (this.type.equals(EnumFilter.KUWAHARA))
         {
             KuwaharaFilter kuwaharaFilter = new KuwaharaFilter(this.getRate());
-            newValue = kuwaharaFilter.calculateFilterResult(subimage);
+            newValue = kuwaharaFilter.calculateFilterResult(image);
         }
         else
         {
             List<Integer> imagePixels = new ArrayList<Integer>();
             int oldValue = 0;
 
-            for (int i = 0; i < subimage.getHeight(); i++)
+            for (int i = 0; i < image.getHeight(); i++)
             {
-                for (int j = 0; j < subimage.getWidth(); j++)
+                for (int j = 0; j < image.getWidth(); j++)
                 {
-                    int pixel = subimage.getRGB(j, i);
-                    pixel = (pixel & 0x000000ff);
+                    int pixel = image.getPixel(i, j);
 
                     if (((this.getRate() - 1) / 2) == i && i == j)
                     {

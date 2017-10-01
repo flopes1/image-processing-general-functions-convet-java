@@ -1,17 +1,17 @@
 package com.poli.model.util;
 
-import java.awt.image.BufferedImage;
+import com.poli.model.Image;
 
 public class FourierTransform
 {
 
-    public static ComplexNumber[][] discretTransform(BufferedImage fxy)
+    public static ComplexNumber[][] discretTransform(Image originalImage)
     {
         System.err.println("------------------Inicio da transformada discreta--------------------");
-        ComplexNumber[][] result = new ComplexNumber[fxy.getHeight()][fxy.getWidth()];
+        ComplexNumber[][] result = new ComplexNumber[originalImage.getHeight()][originalImage.getWidth()];
 
-        double m = fxy.getHeight();
-        double n = fxy.getWidth();
+        double m = originalImage.getHeight();
+        double n = originalImage.getWidth();
 
         for (int u = 0; u < m; u++)
         {
@@ -25,7 +25,7 @@ public class FourierTransform
                     for (int y = 0; y < n; y++)
                     {
 
-                        int functionInput = parsePixelValue(fxy.getRGB(y, x));
+                        int functionInput = originalImage.getPixel(x, y);
                         functionInput *= Math.pow(-1, x + y);
 
                         double imgArgs = 2 * Math.PI
@@ -49,11 +49,6 @@ public class FourierTransform
         }
 
         return result;
-    }
-
-    public static int parsePixelValue(int rgb)
-    {
-        return (rgb & 0x000000ff);
     }
 
     public static ComplexNumber[][] discretInverseTransform(ComplexNumber[][] Fuv)

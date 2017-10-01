@@ -1,25 +1,20 @@
 package com.poli;
 
-import java.awt.FlowLayout;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
-import com.poli.model.filter.Filter;
+import com.poli.model.Image;
 import com.poli.model.filter.EnumFilterType.EnumFilter;
+import com.poli.model.filter.Filter;
 
 public class ImageProcessing
 {
     private String imagePath;
-    private BufferedImage originalImage;
-    private BufferedImage newImage;
+    private Image originalImage;
+    private Image newImage;
     private Filter filter;
 
     public ImageProcessing(String imagePath) throws IOException
@@ -77,45 +72,27 @@ public class ImageProcessing
         this.filter = new Filter(this.newImage);
         this.newImage = this.filter.applyHighBoostFilter(originalUseRate, lowPassFilter);
     }
-    
+
     public void applyIdealHighPassFilter(int diameter)
     {
         this.filter = new Filter(this.newImage);
         this.newImage = this.filter.applyIdealHighPassFilter(diameter);
     }
-    
+
     public void applyButterworthHighPassFilter(int diameter)
     {
         this.filter = new Filter(this.newImage);
         this.newImage = this.filter.applyButterworthHighPassFilter(diameter, 2);
     }
-    
-    public void convert2GrayScale()
-    {
-        BufferedImage grayImage = new BufferedImage(this.getOriginalImage().getWidth(),
-                this.getOriginalImage().getHeight(), BufferedImage.TYPE_BYTE_GRAY);
-        ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-        op.filter(this.getOriginalImage(), grayImage);
-        this.setNewImage(grayImage);
-    }
 
     public void showOriginalImage()
     {
-        this.showImage(this.getOriginalImage());
+        this.originalImage.showImage();
     }
 
     public void showNewImage()
     {
-        this.showImage(this.getNewImage());
-    }
-
-    private void showImage(BufferedImage image)
-    {
-        JFrame frame = new JFrame();
-        frame.getContentPane().setLayout(new FlowLayout());
-        frame.getContentPane().add(new JLabel(new ImageIcon(image)));
-        frame.pack();
-        frame.setVisible(true);
+        this.newImage.showImage();
     }
 
     public void saveImage(String path) throws IOException
@@ -123,7 +100,7 @@ public class ImageProcessing
         String extension = path.substring(path.lastIndexOf('.') + 1);
 
         File outputfile = new File(path);
-        ImageIO.write(this.getNewImage(), extension, outputfile);
+        ImageIO.write(this.newImage.getSource(), extension, outputfile);
     }
 
     private void loadImage(String imagePath) throws IOException
@@ -149,24 +126,24 @@ public class ImageProcessing
         this.imagePath = imagePath;
     }
 
-    public BufferedImage getOriginalImage()
+    public Image getOriginalImage()
     {
         return originalImage;
     }
 
     public void setOriginalImage(BufferedImage image)
     {
-        this.originalImage = image;
+        this.originalImage = new Image(image);
     }
 
-    public BufferedImage getNewImage()
+    public Image getNewImage()
     {
         return newImage;
     }
 
     public void setNewImage(BufferedImage image)
     {
-        this.newImage = image;
+        this.newImage = new Image(image);
     }
 
 }
