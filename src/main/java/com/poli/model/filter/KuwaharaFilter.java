@@ -94,9 +94,9 @@ public class KuwaharaFilter
         List<Integer> thirdElements = new ArrayList<Integer>();
         List<Integer> fourthElements = new ArrayList<Integer>();
 
-        for (int i = 0; i < image.getHeight(); i++)
+        for (int i = 0; i < image.getRows(); i++)
         {
-            for (int j = 0; j < image.getWidth(); j++)
+            for (int j = 0; j < image.getCols(); j++)
             {
                 int pixel = image.getPixel(i, j);
 

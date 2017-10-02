@@ -1,4 +1,4 @@
-package com.poli.model.util;
+package com.poli.model.util.math;
 
 public class ComplexNumber
 {

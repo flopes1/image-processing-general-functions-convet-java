@@ -108,9 +108,9 @@ public class Mask
             List<Integer> imagePixels = new ArrayList<Integer>();
             int oldValue = 0;
 
-            for (int i = 0; i < image.getHeight(); i++)
+            for (int i = 0; i < image.getRows(); i++)
             {
-                for (int j = 0; j < image.getWidth(); j++)
+                for (int j = 0; j < image.getCols(); j++)
                 {
                     int pixel = image.getPixel(i, j);
 
@@ -156,6 +156,22 @@ public class Mask
             // newValue = oldValue - sum;
             newValue = sum;
             newValue = this.normalizeValue(newValue);
+        }
+        else if (this.type.equals(EnumFilter.MAX))
+        {
+            imagePixels = this.sortPixels(imagePixels);
+            newValue = imagePixels.get(imagePixels.size() - 1);
+        }
+        else if (this.type.equals(EnumFilter.MIN))
+        {
+            imagePixels = this.sortPixels(imagePixels);
+            newValue = imagePixels.get(0);
+        }
+        else if (this.type.equals(EnumFilter.HARMONIC_MEAN))
+        {
+            double sum = imagePixels.stream().mapToDouble(i -> i.doubleValue() == 0 ? 0 : (1.0 / i.doubleValue()))
+                    .sum();
+            newValue = (int) ((double) imagePixels.size() / sum);
         }
 
         return newValue;

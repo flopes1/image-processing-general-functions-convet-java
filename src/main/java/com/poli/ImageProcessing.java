@@ -9,6 +9,10 @@ import javax.imageio.ImageIO;
 import com.poli.model.Image;
 import com.poli.model.filter.EnumFilterType.EnumFilter;
 import com.poli.model.filter.Filter;
+import com.poli.model.filter.noise.EnumNoise;
+import com.poli.model.filter.noise.GaussianNoise;
+import com.poli.model.filter.noise.NoiseGenerator;
+import com.poli.model.filter.noise.RandomNoise;
 
 public class ImageProcessing
 {
@@ -24,6 +28,58 @@ public class ImageProcessing
     }
 
     /**
+     * Adiciona ruido na imagem de acordo com uma porcentagem. O novo valor do pixel estará dentro do range passado
+     * 
+     * @param chance
+     *            porcentagem de chance do ruido aparecer [0-100]%
+     * @param initialValue
+     *            valor inicial para escolha aleatoria do novo valor
+     * @param finalValue
+     *            valor final para escolha aleatoria do novo valor
+     */
+    public void addRandomNoise0Or255(int chance)
+    {
+        this.addNoise(EnumNoise.RANDOM, chance, 0, 255);
+    }
+
+    /**
+     * Adiciona ruido na imagem de acordo com a porcentagem. O novo valor do pixel será 0
+     * 
+     * @param chance
+     */
+    public void addRandomNoiseZero(int chance)
+    {
+        this.addNoise(EnumNoise.RANDOM, chance, 0, 0);
+    }
+
+    private void addNoise(EnumNoise type, int chance, int initialRange, int finalRange)
+    {
+        if (chance < 0 || chance > 100)
+        {
+            throw new IllegalArgumentException("Entradas inválidas!");
+        }
+
+        NoiseGenerator noiseGenerator = new NoiseGenerator(new RandomNoise(type, chance, initialRange, finalRange));
+
+        this.newImage = noiseGenerator.addNoise(this.newImage);
+    }
+
+    /**
+     * Adiciona ruido em cada pixel da imagem de acordo com um valor aleatorio de uma função gaussiana
+     */
+    public void addGaussianNoise(int mean, int standardDeviation)
+    {
+        NoiseGenerator noiseGenerator = new NoiseGenerator(
+                new GaussianNoise(EnumNoise.GAUSSIAN, mean, standardDeviation));
+        this.newImage = noiseGenerator.addNoise(this.newImage);
+    }
+
+    public void showImageHistogram()
+    {
+        this.newImage.showHistogram();
+    }
+
+    /**
      * Aplica o filtro passa baixa mediana
      * 
      * @param maskRate
@@ -32,7 +88,25 @@ public class ImageProcessing
     public void applyMedianFilter(int maskRate)
     {
         this.filter = new Filter(this.newImage);
-        this.newImage = this.filter.applyMeanFilter(maskRate);
+        this.newImage = this.filter.applyMedianFilter(maskRate);
+    }
+
+    public void applyMaxFilter(int maskRate)
+    {
+        this.filter = new Filter(this.newImage);
+        this.newImage = this.filter.applyMaxFilter(maskRate);
+    }
+
+    public void applyMinFilter(int maskRate)
+    {
+        this.filter = new Filter(this.newImage);
+        this.newImage = this.filter.applyMinFilter(maskRate);
+    }
+
+    public void applyHarmonicMeanFilter(int maskRate)
+    {
+        this.filter = new Filter(this.newImage);
+        this.newImage = this.filter.applyHarmonicMeanFilter(maskRate);
     }
 
     /**

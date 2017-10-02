@@ -10,10 +10,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.poli.model.util.Histogram;
+
 public class Image
 {
 
     private BufferedImage image;
+    private Histogram histogram;
 
     public Image(BufferedImage image)
     {
@@ -28,8 +31,16 @@ public class Image
 
     public void setPixel(int row, int col, int value)
     {
+        value = this.normalizeValue(value);
         Color color = new Color(value, value, value);
         this.image.setRGB(col, row, color.getRGB());
+    }
+
+    private int normalizeValue(int value)
+    {
+        value = value > 255 ? 255 : value;
+        value = value < 0 ? 0 : value;
+        return value;
     }
 
     public void showImage()
@@ -55,12 +66,12 @@ public class Image
         return this.image;
     }
 
-    public int getWidth()
+    public int getCols()
     {
         return this.image.getWidth();
     }
 
-    public int getHeight()
+    public int getRows()
     {
         return this.image.getHeight();
     }
@@ -75,6 +86,12 @@ public class Image
     {
         BufferedImage image = this.image.getSubimage(0, 0, this.image.getWidth(), this.image.getHeight());
         return new Image(image);
+    }
+
+    public void showHistogram()
+    {
+        this.histogram = new Histogram(this);
+        this.histogram.display();
     }
 
 }

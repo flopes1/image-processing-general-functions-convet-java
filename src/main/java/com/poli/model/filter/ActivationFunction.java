@@ -2,7 +2,7 @@ package com.poli.model.filter;
 
 import com.poli.model.filter.EnumFilterType.EnumFilter;
 import com.poli.model.filter.EnumFilterType.Type;
-import com.poli.model.util.ComplexNumber;
+import com.poli.model.util.math.ComplexNumber;
 
 public class ActivationFunction
 {

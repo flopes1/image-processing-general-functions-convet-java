@@ -1,4 +1,4 @@
-package com.poli.model.util;
+package com.poli.model.util.math;
 
 import com.poli.model.Image;
 
@@ -8,10 +8,10 @@ public class FourierTransform
     public static ComplexNumber[][] discretTransform(Image originalImage)
     {
         System.err.println("------------------Inicio da transformada discreta--------------------");
-        ComplexNumber[][] result = new ComplexNumber[originalImage.getHeight()][originalImage.getWidth()];
+        ComplexNumber[][] result = new ComplexNumber[originalImage.getRows()][originalImage.getCols()];
 
-        double m = originalImage.getHeight();
-        double n = originalImage.getWidth();
+        double m = originalImage.getRows();
+        double n = originalImage.getCols();
 
         for (int u = 0; u < m; u++)
         {

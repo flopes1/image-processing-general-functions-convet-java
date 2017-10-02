@@ -5,8 +5,8 @@ import java.awt.image.BufferedImage;
 import com.poli.model.Image;
 import com.poli.model.filter.EnumFilterType.EnumFilter;
 import com.poli.model.filter.EnumFilterType.Type;
-import com.poli.model.util.ComplexNumber;
-import com.poli.model.util.FourierTransform;
+import com.poli.model.util.math.ComplexNumber;
+import com.poli.model.util.math.FourierTransform;
 
 public class Filter
 {
@@ -34,8 +34,9 @@ public class Filter
 
         return this.newImage;
     }
+    
 
-    public Image applyMeanFilter(int maskRate)
+    public Image applyMaxFilter(int maskRate)
     {
 
         if (maskRate < 0 || (maskRate % 2) == 0)
@@ -43,7 +44,47 @@ public class Filter
             throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
         }
 
+        this.mask = new Mask(maskRate, EnumFilter.MAX);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+
+    public Image applyMinFilter(int maskRate)
+    {
+
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
+        this.mask = new Mask(maskRate, EnumFilter.MIN);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+    
+    public Image applyMeanFilter(int maskRate)
+    {
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
         this.mask = new Mask(maskRate, EnumFilter.MEAN);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+    
+    public Image applyHarmonicMeanFilter(int maskRate)
+    {
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
+        this.mask = new Mask(maskRate, EnumFilter.HARMONIC_MEAN);
         this.applyImageFilter();
 
         return this.newImage;
@@ -88,9 +129,9 @@ public class Filter
 
         int[][] highPassFilter = this.getHighPassFilter();
 
-        for (int row = 0; row < this.newImage.getHeight(); row++)
+        for (int row = 0; row < this.newImage.getRows(); row++)
         {
-            for (int col = 0; col < this.newImage.getWidth(); col++)
+            for (int col = 0; col < this.newImage.getCols(); col++)
             {
                 int original = this.originalImage.getPixel(row, col);
 
@@ -110,11 +151,11 @@ public class Filter
 
     private int[][] getHighPassFilter()
     {
-        int[][] highPass = new int[this.originalImage.getWidth()][this.originalImage.getHeight()];
+        int[][] highPass = new int[this.originalImage.getCols()][this.originalImage.getRows()];
 
-        for (int row = 0; row < this.newImage.getHeight(); row++)
+        for (int row = 0; row < this.newImage.getRows(); row++)
         {
-            for (int col = 0; col < this.newImage.getWidth(); col++)
+            for (int col = 0; col < this.newImage.getCols(); col++)
             {
                 int original = this.originalImage.getPixel(row, col);
 
@@ -133,47 +174,49 @@ public class Filter
         int rate = this.mask.getRate();
         int rateMid = (rate - 1) / 2;
 
-        Image padding = this.getPeddingImg();
+        // Image padding = this.getPeddingImg();
 
-        for (int row = 0; row < padding.getHeight(); row++)
+        for (int row = 0; row < newImage.getRows(); row++)
         {
-            for (int col = 0; col < padding.getWidth(); col++)
+            for (int col = 0; col < newImage.getCols(); col++)
             {
-                if (this.mask.isValidRegion(row, col, padding.getHeight(), padding.getWidth()))
+                if (this.mask.isValidRegion(row, col, newImage.getRows(), newImage.getCols()))
                 {
                     int result = this.mask
-                            .calculateMaskResult(padding.getSubimage(row - rateMid, col - rateMid, rate, rate));
-                    padding.setPixel(row, col, result);
+                            .calculateMaskResult(newImage.getSubimage(row - rateMid, col - rateMid, rate, rate));
+                    newImage.setPixel(row, col, result);
                 }
             }
         }
 
-        this.newImage = this.removePadding(padding);
+        // this.newImage = this.removePadding(padding);
     }
 
-    private Image removePadding(Image padding)
+    @Deprecated
+    public Image removePadding(Image padding)
     {
         int paddingRate = this.mask.getRate();
         paddingRate = (paddingRate - 1) / 2;
 
-        return padding.getSubimage(paddingRate, paddingRate, this.newImage.getWidth(), this.newImage.getHeight());
+        return padding.getSubimage(paddingRate, paddingRate, this.newImage.getCols(), this.newImage.getRows());
     }
 
-    private Image getPeddingImg()
+    @Deprecated
+    public Image getPeddingImg()
     {
         int rate = this.mask.getRate();
         int rateMid = (rate - 1) / 2;
 
-        BufferedImage pad = new BufferedImage(this.newImage.getWidth() + rate - 1, this.newImage.getHeight() + rate - 1,
+        BufferedImage pad = new BufferedImage(this.newImage.getCols() + rate - 1, this.newImage.getRows() + rate - 1,
                 BufferedImage.TYPE_BYTE_GRAY);
         Image padding = new Image(pad);
 
-        for (int row = 0; row < this.newImage.getHeight() + rate - 1; row++)
+        for (int row = 0; row < this.newImage.getRows() + rate - 1; row++)
         {
-            for (int col = 0; col < this.newImage.getWidth() + rate - 1; col++)
+            for (int col = 0; col < this.newImage.getCols() + rate - 1; col++)
             {
-                if (this.mask.isValidRegion(row, col, this.newImage.getHeight() + rate - 1,
-                        this.newImage.getWidth() + rate - 1))
+                if (this.mask.isValidRegion(row, col, this.newImage.getRows() + rate - 1,
+                        this.newImage.getCols() + rate - 1))
                 {
                     int pixel = this.newImage.getPixel(row - rateMid, col - rateMid);
                     padding.setPixel(row, col, pixel);
@@ -201,9 +244,9 @@ public class Filter
 
         int[][] highPassFilter = this.getHighPassFilter();
 
-        for (int row = 0; row < this.newImage.getHeight(); row++)
+        for (int row = 0; row < this.newImage.getRows(); row++)
         {
-            for (int col = 0; col < this.newImage.getWidth(); col++)
+            for (int col = 0; col < this.newImage.getCols(); col++)
             {
                 int original = this.originalImage.getPixel(row, col);
 

@@ -11,7 +11,7 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile = new File(classLoader.getResource("1.png").getFile());
+        File imageFile = new File(classLoader.getResource("1_random_0.jpg").getFile());
 
         // String destinyPath = "dentiny path";
         // String sourceImage = "source/1.jpg";
@@ -23,12 +23,21 @@ public class Main
 
             ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
 
+            // imgProces.addRandomNoiseZero(25);
+            // imgProces.addRandomNoise0Or255(15);
+            // imgProces.addGaussianNoise(10, 50);
 
-            imgProces.saveImage(resourcePath + "/1_.png");
+            // imgProces.showImageHistogram();
+            imgProces.applyMaxFilter(3);
+
+            imgProces.saveImage(resourcePath + "/1_random_0_max.jpg");
+            // imgProces.saveImage(resourcePath + "/3_random_0.jpg");
+            // imgProces.saveImage(resourcePath + "/3_random_0_255.jpg");
+            // imgProces.saveImage(resourcePath + "/3_random_gaussian.jpg");
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
 
     }
