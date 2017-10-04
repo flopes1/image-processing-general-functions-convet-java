@@ -87,26 +87,51 @@ public class ImageProcessing
      */
     public void applyMedianFilter(int maskRate)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyMedianFilter(maskRate);
     }
 
     public void applyMaxFilter(int maskRate)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyMaxFilter(maskRate);
     }
 
     public void applyMinFilter(int maskRate)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyMinFilter(maskRate);
     }
 
     public void applyHarmonicMeanFilter(int maskRate)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyHarmonicMeanFilter(maskRate);
+    }
+
+    public void applyContraHarmonicMeanFilter(int maskRate, double q)
+    {
+        this.filter = new Filter(this.originalImage, this.newImage);
+        this.newImage = this.filter.applyContraHarmonicMeanFilter(maskRate, q);
+    }
+
+    @Deprecated
+    public void applyGeometricMeanFilter(int maskRate)
+    {
+        this.filter = new Filter(this.originalImage, this.newImage);
+        this.newImage = this.filter.applyGeometricMeanFilter(maskRate);
+    }
+
+    public void applyPointMeanFilter(int maskRate)
+    {
+        this.filter = new Filter(this.originalImage, this.newImage);
+        this.newImage = this.filter.applyPointMeanFilter(maskRate);
+    }
+
+    public void applyGaussianFilter(int maskRate)
+    {
+        this.filter = new Filter(this.originalImage, this.newImage);
+        this.newImage = this.filter.applyGaussianFilter(maskRate);
     }
 
     /**
@@ -117,7 +142,7 @@ public class ImageProcessing
      */
     public void applyMeanFilter(int maskRate)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyMeanFilter(maskRate);
     }
 
@@ -129,7 +154,7 @@ public class ImageProcessing
      */
     public void applyKuwaharaFilter(int maskRate)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyKuwaharaFilter(maskRate);
     }
 
@@ -143,20 +168,26 @@ public class ImageProcessing
      */
     public void applyHighBoostFilter(double originalUseRate, EnumFilter lowPassFilter)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyHighBoostFilter(originalUseRate, lowPassFilter);
     }
 
     public void applyIdealHighPassFilter(int diameter)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyIdealHighPassFilter(diameter);
     }
 
     public void applyButterworthHighPassFilter(int diameter)
     {
-        this.filter = new Filter(this.newImage);
+        this.filter = new Filter(this.originalImage, this.newImage);
         this.newImage = this.filter.applyButterworthHighPassFilter(diameter, 2);
+    }
+
+    public void applyButterworthLowPassFilter(int diameter)
+    {
+        this.filter = new Filter(this.originalImage, this.newImage);
+        this.newImage = this.filter.applyButterworthLowPassFilter(diameter);
     }
 
     public void showOriginalImage()
@@ -187,7 +218,6 @@ public class ImageProcessing
         }
 
         this.setOriginalImage(ImageIO.read(imageFile));
-        this.setNewImage(ImageIO.read(imageFile));
     }
 
     public String getImagePath()
@@ -208,6 +238,7 @@ public class ImageProcessing
     public void setOriginalImage(BufferedImage image)
     {
         this.originalImage = new Image(image);
+        this.setNewImage();
     }
 
     public Image getNewImage()
@@ -215,9 +246,9 @@ public class ImageProcessing
         return newImage;
     }
 
-    public void setNewImage(BufferedImage image)
+    public void setNewImage()
     {
-        this.newImage = new Image(image);
+        this.newImage = this.originalImage.cloneImage();
     }
 
 }

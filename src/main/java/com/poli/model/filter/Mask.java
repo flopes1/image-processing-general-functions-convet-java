@@ -15,12 +15,19 @@ public class Mask
     private int rate;
     private EnumFilter type;
     private int[][] weights;
+    private double q;
 
-    public Mask(int rate, EnumFilter median)
+    public Mask(int rate, EnumFilter type)
     {
         this.setRate(rate);
-        this.setType(median);
+        this.setType(type);
         this.setWeights();
+    }
+
+    public Mask(int rate, EnumFilter type, double q)
+    {
+        this(rate, type);
+        this.q = q;
     }
 
     public int[][] getWeights()
@@ -32,7 +39,31 @@ public class Mask
     {
         this.weights = new int[rate][rate];
 
-        if (EnumFilterType.getEnumType(this.getType()).equals(Type.LOW_PASS))
+        if (EnumFilter.GAUSSIAN.equals(this.type))
+        {
+
+            for (int i = 0; i < this.rate; i++)
+            {
+                for (int j = 0; j < this.rate; j++)
+                {
+                    if (i == 0 && j == 0 || i == this.rate - 1 && j == this.rate - 1 || i == 0 && j == this.rate - 1
+                            || j == 0 && i == this.rate - 1)
+                    {
+                        this.weights[i][j] = 1;
+                    }
+                    else if (i == ((this.rate - 1) / 2) && j == ((this.rate - 1) / 2))
+                    {
+                        this.weights[i][j] = 4;
+                    }
+                    else
+                    {
+                        this.weights[i][j] = 2;
+                    }
+                }
+            }
+
+        }
+        else if (EnumFilterType.getEnumType(this.getType()).equals(Type.LOW_PASS))
         {
             for (int i = 0; i < this.rate; i++)
             {
@@ -106,7 +137,6 @@ public class Mask
         else
         {
             List<Integer> imagePixels = new ArrayList<Integer>();
-            int oldValue = 0;
 
             for (int i = 0; i < image.getRows(); i++)
             {
@@ -114,17 +144,12 @@ public class Mask
                 {
                     int pixel = image.getPixel(i, j);
 
-                    if (((this.getRate() - 1) / 2) == i && i == j)
-                    {
-                        oldValue = pixel;
-                    }
-
                     pixel *= this.weights[j][i];
                     imagePixels.add(pixel);
                 }
             }
 
-            newValue = this.getResult(imagePixels, oldValue);
+            newValue = this.getResult(imagePixels);
         }
         if (newValue == -1)
         {
@@ -134,7 +159,7 @@ public class Mask
         return newValue;
     }
 
-    private int getResult(List<Integer> imagePixels, int oldValue)
+    private int getResult(List<Integer> imagePixels)
     {
         int newValue = 0;
 
@@ -152,8 +177,6 @@ public class Mask
         else if (this.type.equals(EnumFilter.LAPLACIAN))
         {
             int sum = imagePixels.stream().mapToInt(i -> i.intValue()).sum();
-            // newValue = sum / imagePixels.size();
-            // newValue = oldValue - sum;
             newValue = sum;
             newValue = this.normalizeValue(newValue);
         }
@@ -172,6 +195,40 @@ public class Mask
             double sum = imagePixels.stream().mapToDouble(i -> i.doubleValue() == 0 ? 0 : (1.0 / i.doubleValue()))
                     .sum();
             newValue = (int) ((double) imagePixels.size() / sum);
+        }
+        else if (this.type.equals(EnumFilter.CONTRA_HARMONIC_MEAN))
+        {
+            double sumUpper = imagePixels.stream().mapToDouble(i -> Math.pow(i.doubleValue(), this.q + 1)).sum();
+            double sumLower = imagePixels.stream().mapToDouble(i -> Math.pow(i.doubleValue(), this.q)).sum();
+            newValue = (int) (sumUpper / sumLower);
+        }
+        else if (this.type.equals(EnumFilter.GEOMETRIC_MEAN))
+        {
+            double prod = imagePixels.stream().reduce(1, (a, b) -> a * b);
+            newValue = (int) Math.pow(prod, 1.0 / (double) imagePixels.size());
+        }
+        else if (this.type.equals(EnumFilter.POINT_MEAN))
+        {
+            imagePixels = this.sortPixels(imagePixels);
+            int max = imagePixels.get(imagePixels.size() - 1);
+            int min = imagePixels.get(0);
+
+            newValue = (int) ((max + min) / 2);
+        }
+        else if (this.type.equals(EnumFilter.GAUSSIAN))
+        {
+            int sumWeights = 0;
+
+            for (int i = 0; i < this.weights[0].length; i++)
+            {
+                for (int j = 0; j < this.weights.length; j++)
+                {
+                    sumWeights += this.weights[i][j];
+                }
+            }
+
+            int values = imagePixels.stream().mapToInt(i -> i.intValue()).sum();
+            newValue = values / sumWeights;
         }
 
         return newValue;

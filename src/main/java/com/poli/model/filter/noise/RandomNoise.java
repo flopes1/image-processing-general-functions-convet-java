@@ -43,9 +43,15 @@ public class RandomNoise extends NoiseType
         {
             newValue = this.initialRange;
         }
-        else if (percent > this.noiseOccurPercent && percent <= (this.noiseOccurPercent * 2))
+        else
         {
-            newValue = this.finalRange;
+            percent = ThreadLocalRandom.current().nextInt(0, 100 + 1);
+
+            if (percent <= this.noiseOccurPercent)
+            {
+                newValue = this.finalRange;
+            }
+
         }
 
         return newValue;

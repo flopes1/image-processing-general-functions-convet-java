@@ -15,10 +15,10 @@ public class Filter
     private Image originalImage;
     private Image newImage;
 
-    public Filter(Image image)
+    public Filter(Image original, Image newImage)
     {
-        this.originalImage = image;
-        this.newImage = this.originalImage.cloneImage();
+        this.originalImage = original;
+        this.newImage = newImage;
     }
 
     public Image applyMedianFilter(int maskRate)
@@ -34,7 +34,6 @@ public class Filter
 
         return this.newImage;
     }
-    
 
     public Image applyMaxFilter(int maskRate)
     {
@@ -63,7 +62,7 @@ public class Filter
 
         return this.newImage;
     }
-    
+
     public Image applyMeanFilter(int maskRate)
     {
         if (maskRate < 0 || (maskRate % 2) == 0)
@@ -76,7 +75,7 @@ public class Filter
 
         return this.newImage;
     }
-    
+
     public Image applyHarmonicMeanFilter(int maskRate)
     {
         if (maskRate < 0 || (maskRate % 2) == 0)
@@ -85,6 +84,45 @@ public class Filter
         }
 
         this.mask = new Mask(maskRate, EnumFilter.HARMONIC_MEAN);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+
+    public Image applyContraHarmonicMeanFilter(int maskRate, double q)
+    {
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
+        this.mask = new Mask(maskRate, EnumFilter.CONTRA_HARMONIC_MEAN, q);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+
+    public Image applyGeometricMeanFilter(int maskRate)
+    {
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
+        this.mask = new Mask(maskRate, EnumFilter.GEOMETRIC_MEAN);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+
+    public Image applyPointMeanFilter(int maskRate)
+    {
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
+        this.mask = new Mask(maskRate, EnumFilter.POINT_MEAN);
         this.applyImageFilter();
 
         return this.newImage;
@@ -112,6 +150,19 @@ public class Filter
         return this.newImage;
     }
 
+    public Image applyGaussianFilter(int maskRate)
+    {
+        if (maskRate < 0 || (maskRate % 2) == 0)
+        {
+            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+        }
+
+        this.mask = new Mask(maskRate, EnumFilter.GAUSSIAN);
+        this.applyImageFilter();
+
+        return this.newImage;
+    }
+
     public Image applyHighBoostFilter(double increaseRate, EnumFilter lowPassFilter)
     {
         if (lowPassFilter.equals(EnumFilter.MEDIAN))
@@ -129,9 +180,9 @@ public class Filter
 
         int[][] highPassFilter = this.getHighPassFilter();
 
-        for (int row = 0; row < this.newImage.getRows(); row++)
+        for (int row = 0; row < this.originalImage.getRows(); row++)
         {
-            for (int col = 0; col < this.newImage.getCols(); col++)
+            for (int col = 0; col < this.originalImage.getCols(); col++)
             {
                 int original = this.originalImage.getPixel(row, col);
 
@@ -153,9 +204,9 @@ public class Filter
     {
         int[][] highPass = new int[this.originalImage.getCols()][this.originalImage.getRows()];
 
-        for (int row = 0; row < this.newImage.getRows(); row++)
+        for (int row = 0; row < this.originalImage.getRows(); row++)
         {
-            for (int col = 0; col < this.newImage.getCols(); col++)
+            for (int col = 0; col < this.originalImage.getCols(); col++)
             {
                 int original = this.originalImage.getPixel(row, col);
 
@@ -176,15 +227,16 @@ public class Filter
 
         // Image padding = this.getPeddingImg();
 
-        for (int row = 0; row < newImage.getRows(); row++)
+        for (int row = 0; row < this.originalImage.getRows(); row++)
         {
-            for (int col = 0; col < newImage.getCols(); col++)
+            for (int col = 0; col < this.originalImage.getCols(); col++)
             {
-                if (this.mask.isValidRegion(row, col, newImage.getRows(), newImage.getCols()))
+                if (this.mask.isValidRegion(row, col, this.originalImage.getRows(), this.originalImage.getCols()))
                 {
-                    int result = this.mask
-                            .calculateMaskResult(newImage.getSubimage(row - rateMid, col - rateMid, rate, rate));
-                    newImage.setPixel(row, col, result);
+                    int result = this.mask.calculateMaskResult(
+                            this.originalImage.getSubimage(row - rateMid, col - rateMid, rate, rate));
+                    // int result = this.originalImage.getPixel(row, col);
+                    this.newImage.setPixel(row, col, result);
                 }
             }
         }
@@ -244,9 +296,9 @@ public class Filter
 
         int[][] highPassFilter = this.getHighPassFilter();
 
-        for (int row = 0; row < this.newImage.getRows(); row++)
+        for (int row = 0; row < this.originalImage.getRows(); row++)
         {
-            for (int col = 0; col < this.newImage.getCols(); col++)
+            for (int col = 0; col < this.originalImage.getCols(); col++)
             {
                 int original = this.originalImage.getPixel(row, col);
 
@@ -264,6 +316,13 @@ public class Filter
 
         return this.newImage;
 
+    }
+
+    public Image applyButterworthLowPassFilter(int diameter)
+    {
+        this.applyFrequencyFilter(diameter, Type.LOW_PASS, EnumFilter.BUTTERWORTH);
+
+        return this.newImage;
     }
 
     private void applyFrequencyFilter(int diameter, Type type, EnumFilter filter)

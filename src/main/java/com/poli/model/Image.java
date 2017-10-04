@@ -84,8 +84,11 @@ public class Image
 
     public Image cloneImage()
     {
-        BufferedImage image = this.image.getSubimage(0, 0, this.image.getWidth(), this.image.getHeight());
-        return new Image(image);
+        BufferedImage grayImage = new BufferedImage(this.image.getWidth(), this.image.getHeight(),
+                BufferedImage.TYPE_BYTE_GRAY);
+        ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+        op.filter(this.image, grayImage);
+        return new Image(grayImage);
     }
 
     public void showHistogram()
