@@ -21,9 +21,6 @@ public class GaussianFunction
 
         functionResult += x;
 
-        functionResult = functionResult > 255 ? 255 : functionResult;
-        functionResult = functionResult < 0 ? 0 : functionResult;
-
         return (int) functionResult;
     }
 

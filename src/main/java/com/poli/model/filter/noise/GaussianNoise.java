@@ -19,9 +19,7 @@ public class GaussianNoise extends NoiseType
     @Override
     public int generateNoise(int inputValue)
     {
-        int newValue = this.function.calculateFunctionOutput(inputValue);
-
-        return newValue;
+        return this.function.calculateFunctionOutput(inputValue);
     }
 
     public int getMean()

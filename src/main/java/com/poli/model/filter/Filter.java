@@ -152,9 +152,9 @@ public class Filter
 
     public Image applyGaussianFilter(int maskRate)
     {
-        if (maskRate < 0 || (maskRate % 2) == 0)
+        if (maskRate != 3 && maskRate != 5)
         {
-            throw new IllegalArgumentException("O parametro deve ser maior que zero e/ou impar");
+            throw new IllegalArgumentException("A mascara deve ter uma altra/largura igual a 3 ou 5");
         }
 
         this.mask = new Mask(maskRate, EnumFilter.GAUSSIAN);

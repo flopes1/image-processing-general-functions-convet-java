@@ -42,24 +42,37 @@ public class Mask
         if (EnumFilter.GAUSSIAN.equals(this.type))
         {
 
-            for (int i = 0; i < this.rate; i++)
+            if (this.rate == 3)
             {
-                for (int j = 0; j < this.rate; j++)
+                for (int i = 0; i < this.rate; i++)
                 {
-                    if (i == 0 && j == 0 || i == this.rate - 1 && j == this.rate - 1 || i == 0 && j == this.rate - 1
-                            || j == 0 && i == this.rate - 1)
+                    for (int j = 0; j < this.rate; j++)
                     {
-                        this.weights[i][j] = 1;
-                    }
-                    else if (i == ((this.rate - 1) / 2) && j == ((this.rate - 1) / 2))
-                    {
-                        this.weights[i][j] = 4;
-                    }
-                    else
-                    {
-                        this.weights[i][j] = 2;
+                        if (i == 0 && j == 0 || i == this.rate - 1 && j == this.rate - 1 || i == 0 && j == this.rate - 1
+                                || j == 0 && i == this.rate - 1)
+                        {
+                            this.weights[i][j] = 1;
+                        }
+                        else if (i == ((this.rate - 1) / 2) && j == ((this.rate - 1) / 2))
+                        {
+                            this.weights[i][j] = 4;
+                        }
+                        else
+                        {
+                            this.weights[i][j] = 2;
+                        }
                     }
                 }
+            }
+            else if (this.rate == 5)
+            {
+                this.weights = new int[][]
+                    {
+                            { 1, 4, 7, 4, 1 },
+                            { 4, 16, 26, 16, 4 },
+                            { 7, 26, 41, 26, 7 },
+                            { 4, 16, 26, 16, 4 },
+                            { 1, 4, 7, 4, 1 } };
             }
 
         }
