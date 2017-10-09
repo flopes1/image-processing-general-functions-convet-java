@@ -30,7 +30,6 @@ public class Histogram
 
     private ChartPanel createChartPanel()
     {
-
         this.dataset = new HistogramDataset();
 
         double[] pixelsDistribuition = new double[this.image.getCols() * this.image.getRows()];
