@@ -60,7 +60,7 @@ public class Image
         op.filter(this.image, grayImage);
         this.image = grayImage;
     }
-
+    
     public BufferedImage getSource()
     {
         return this.image;

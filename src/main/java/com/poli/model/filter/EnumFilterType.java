@@ -5,12 +5,12 @@ public class EnumFilterType
 
     public enum EnumFilter
     {
-        MEDIAN, MEAN, MODE, KUWAHARA, LAPLACIAN, HIGH_BOOST, DIAMETER, BUTTERWORTH, HARMONIC_MEAN, CONTRA_HARMONIC_MEAN, POINT_MEAN, GEOMETRIC_MEAN, MAX, MIN, GAUSSIAN
+        MEDIAN, MEAN, MODE, KUWAHARA, LAPLACIAN, HIGH_BOOST, DIAMETER, BUTTERWORTH, HARMONIC_MEAN, CONTRA_HARMONIC_MEAN, POINT_MEAN, GEOMETRIC_MEAN, MAX, MIN, GAUSSIAN, SOBEL
     };
 
     public enum Type
     {
-        HIGH_PASS, LOW_PASS, ADAPTATIVE
+        HIGH_PASS, LOW_PASS, ADAPTATIVE, DETECTION
     };
 
     public static Type getEnumType(EnumFilter filter)
@@ -31,6 +31,10 @@ public class EnumFilterType
         else if (filter.equals(EnumFilter.LAPLACIAN))
         {
             return Type.HIGH_PASS;
+        }
+        else if (filter.equals(EnumFilter.SOBEL))
+        {
+            return Type.DETECTION;
         }
 
         return null;

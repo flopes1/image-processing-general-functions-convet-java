@@ -3,9 +3,8 @@ package com.poli;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
-import com.poli.model.filter.EnumFilterType.EnumFilter;
-import com.poli.model.filter.noise.GaussianNoise;
-import com.poli.model.segmentation.OtsuThreshold;
+
+import com.poli.model.segmentation.threshold.util.ThresholdType;
 
 public class Main
 {
@@ -27,11 +26,14 @@ public class Main
 
             ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
 
-            OtsuThreshold ot = new OtsuThreshold(imgProces.getOriginalImage());
-            System.out.println(ot.getOtsuThreshold());
-
+            /**
+             * Chamada para o metodo que detecta as bordas da imagem
+             */
+            // imgProces.applyMaxFilter(5);
+            imgProces.detectImageBorderWithSobelOperator(ThresholdType.ADAPTATIVE);
+            // imgProces.showImageHistogram();
             // imgProces.showNewImage();
-            // imgProces.saveImage(resourcePath + "/1_gaussian(5x5)_median_high.jpg");
+            imgProces.saveImage(resourcePath + "/1_global_adaptative_otsu.jpg");
         }
         catch (IOException e)
         {

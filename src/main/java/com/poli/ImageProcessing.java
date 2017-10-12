@@ -13,6 +13,9 @@ import com.poli.model.filter.noise.EnumNoise;
 import com.poli.model.filter.noise.GaussianNoise;
 import com.poli.model.filter.noise.NoiseGenerator;
 import com.poli.model.filter.noise.RandomNoise;
+import com.poli.model.segmentation.EdgeDetection;
+import com.poli.model.segmentation.SobelOperator;
+import com.poli.model.segmentation.threshold.util.ThresholdType;
 
 public class ImageProcessing
 {
@@ -20,11 +23,25 @@ public class ImageProcessing
     private Image originalImage;
     private Image newImage;
     private Filter filter;
+    private EdgeDetection edgeDetection;
 
     public ImageProcessing(String imagePath) throws IOException
     {
         this.setImagePath(imagePath);
         this.loadImage(this.getImagePath());
+    }
+
+    /**
+     * Aplica a detecção de bordas na imagem utilizando o operador sobel. O resultado é uma imagem binarizada cujo
+     * threshold é calculado de acordo com o parametro
+     * 
+     * @param type
+     *            tipo do algoritmo de analise do threshold
+     */
+    public void detectImageBorderWithSobelOperator(ThresholdType type)
+    {
+        this.edgeDetection = new SobelOperator(this.originalImage, type);
+        this.newImage = this.edgeDetection.detectEdges();
     }
 
     /**
