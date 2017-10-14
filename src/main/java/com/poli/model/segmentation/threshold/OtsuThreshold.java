@@ -1,5 +1,6 @@
 package com.poli.model.segmentation.threshold;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import com.poli.model.Image;
@@ -8,11 +9,18 @@ import com.poli.model.segmentation.threshold.util.ImageThreshold;
 public class OtsuThreshold extends ImageThreshold
 {
     private HashMap<Integer, Integer> pixelDistribution;
+    private boolean use2Threshold;
 
     public OtsuThreshold(Image image)
     {
         super(image);
         this.generateImageHistogram();
+    }
+
+    public OtsuThreshold(Image image, boolean use2Threshold)
+    {
+        this(image);
+        this.use2Threshold = use2Threshold;
     }
 
     private void generateImageHistogram()
@@ -30,7 +38,7 @@ public class OtsuThreshold extends ImageThreshold
             for (int j = 0; j < this.getImage().getCols(); j++)
             {
                 int currentPixel = this.getImage().getPixel(i, j);
-
+                
                 int value = this.pixelDistribution.get(currentPixel);
                 this.pixelDistribution.put(currentPixel, ++value);
 
@@ -81,10 +89,51 @@ public class OtsuThreshold extends ImageThreshold
                     maxVariance = beetweenVariance;
                     threshHold = t;
                 }
+
             }
         }
 
-        return threshHold;
+        return this.use2Threshold ? (threshHold / 2) : threshHold;
+    }
+
+    @Override
+    public Image binarizeImage()
+    {
+        BufferedImage img = new BufferedImage(this.getImage().getCols(), this.getImage().getRows(),
+                BufferedImage.TYPE_BYTE_BINARY);
+
+        Image newImage = new Image(img);
+
+        int threshold = this.getThreshold();
+
+        if (this.use2Threshold)
+        {
+            threshold /= 2;
+        }
+
+        for (int row = 0; row < this.getImage().getRows(); row++)
+        {
+            for (int col = 0; col < this.getImage().getCols(); col++)
+            {
+                int pixelValue = this.getImage().getPixel(row, col);
+
+                int color = -1;
+
+                if (pixelValue >= threshold)
+                {
+                    color = 255;
+                }
+                else
+                {
+                    color = 0;
+                }
+
+                newImage.setPixel(row, col, color);
+
+            }
+        }
+
+        return newImage;
     }
 
 }

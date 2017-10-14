@@ -1,18 +1,17 @@
-package com.poli.model.segmentation.threshold.util;
+package com.poli.model.segmentation.threshold;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import com.poli.model.Image;
-import com.poli.model.segmentation.threshold.OtsuThreshold;
+import com.poli.model.segmentation.threshold.util.ImageThreshold;
 import com.poli.model.util.ArrayUtils;
 
-public class AdaptativeGlobalOtsuThreshold extends ImageThreshold
+public class HistogramGroupThreshold extends ImageThreshold
 {
     private ImageThreshold otsu;
 
-    public AdaptativeGlobalOtsuThreshold(Image image)
+    public HistogramGroupThreshold(Image image)
     {
         super(image);
         this.otsu = new OtsuThreshold(this.getImage());
@@ -55,6 +54,10 @@ public class AdaptativeGlobalOtsuThreshold extends ImageThreshold
     private double getLocalThreshold(ArrayList<Integer> selectedGroup)
     {
         double value = ArrayUtils.getMinValue(selectedGroup);
+        if (value == 0)
+        {
+            value = ArrayUtils.getMeanValue(selectedGroup);
+        }
         return (int) value;
     }
 
@@ -67,6 +70,9 @@ public class AdaptativeGlobalOtsuThreshold extends ImageThreshold
 
         for (int i = 0; i < 256; i++)
         {
+            if (i <= 10 || i >= 245)
+                continue;
+
             totalSum += i * localHistogram.get(i);
             weight += localHistogram.get(i);
         }
@@ -90,6 +96,13 @@ public class AdaptativeGlobalOtsuThreshold extends ImageThreshold
 
         }
         return pixelDistribution;
+    }
+
+    @Override
+    public Image binarizeImage()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

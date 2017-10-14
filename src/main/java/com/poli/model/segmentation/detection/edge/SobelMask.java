@@ -1,4 +1,4 @@
-package com.poli.model.segmentation;
+package com.poli.model.segmentation.detection.edge;
 
 import com.poli.model.Image;
 

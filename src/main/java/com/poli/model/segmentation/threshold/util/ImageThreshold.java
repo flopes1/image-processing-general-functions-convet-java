@@ -18,4 +18,6 @@ public abstract class ImageThreshold
         return this.image;
     }
 
+    public abstract Image binarizeImage();
+
 }

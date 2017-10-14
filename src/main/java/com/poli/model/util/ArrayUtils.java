@@ -46,14 +46,32 @@ public class ArrayUtils
 
     public static int getMinValue(List<Integer> input)
     {
-        List<Integer> ordered = ArrayUtils.sortPixels(input);
-        return ordered.get(0);
+        int min = 256;
+
+        for (Integer integer : input)
+        {
+            if (min > integer)
+            {
+                min = integer;
+            }
+        }
+
+        return min;
     }
 
     public static int getMaxValue(List<Integer> input)
     {
-        List<Integer> ordered = ArrayUtils.sortPixels(input);
-        return ordered.get(input.size() - 1);
+        int max = 0;
+
+        for (Integer integer : input)
+        {
+            if (integer > max)
+            {
+                max = integer;
+            }
+        }
+
+        return max;
     }
 
     public static int getLocalizedMean(List<Integer> input)

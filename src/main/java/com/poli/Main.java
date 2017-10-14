@@ -13,7 +13,7 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile = new File(classLoader.getResource("1.jpg").getFile());
+        File imageFile = new File(classLoader.getResource("3_1.jpg").getFile());
         // File imageFile = new File(classLoader.getResource("3.jpg").getFile());
 
         // String destinyPath = "dentiny path";
@@ -27,13 +27,33 @@ public class Main
             ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
 
             /**
-             * Chamada para o metodo que detecta as bordas da imagem
+             * Chamada para o metodo que gera a solução da 1ª imagem
              */
-            // imgProces.applyMaxFilter(5);
-            imgProces.detectImageBorderWithSobelOperator(ThresholdType.ADAPTATIVE);
+            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.HISTOGRAM_GROUP, false);
+
+            /**
+             * Chamada para o metodo que gera a solução da 2ª imagem
+             */
+            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.OTSU, true);
+
+            /**
+             * Chamada para o metodo que gera a solução da 3ª imagem Caso queira a mão com a area interna em preto, usar
+             * a segunda função no resultado da primeira e a terceira no resultado da segunda. Caso não queria, executar
+             * só a primeria função
+             */
+            // imgProces.binarizeImage(ThresholdType.ADAPTATIVE, false);
+            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.OTSU, true);
+            // imgProces.applyMedianFilter(3);
+            /**
+             * Chamada para o metodo que gera a solução da 4ª imagem
+             */
+            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.OTSU, false);
+
+            /**
+             * Utils
+             */
             // imgProces.showImageHistogram();
-            // imgProces.showNewImage();
-            imgProces.saveImage(resourcePath + "/1_global_adaptative_otsu.jpg");
+            // imgProces.saveImage(resourcePath + "/3_1_.jpg");
         }
         catch (IOException e)
         {

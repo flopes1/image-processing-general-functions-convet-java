@@ -13,8 +13,15 @@ import com.poli.model.filter.noise.EnumNoise;
 import com.poli.model.filter.noise.GaussianNoise;
 import com.poli.model.filter.noise.NoiseGenerator;
 import com.poli.model.filter.noise.RandomNoise;
-import com.poli.model.segmentation.EdgeDetection;
-import com.poli.model.segmentation.SobelOperator;
+import com.poli.model.segmentation.detection.edge.EdgeDetection;
+import com.poli.model.segmentation.detection.edge.SobelOperator;
+import com.poli.model.segmentation.detection.region.RegionDetection;
+import com.poli.model.segmentation.detection.region.RegionDetectionUsingHistogram;
+import com.poli.model.segmentation.threshold.AdaptativeThreshold;
+import com.poli.model.segmentation.threshold.GlobalThreshold;
+import com.poli.model.segmentation.threshold.HistogramGroupThreshold;
+import com.poli.model.segmentation.threshold.OtsuThreshold;
+import com.poli.model.segmentation.threshold.util.ImageThreshold;
 import com.poli.model.segmentation.threshold.util.ThresholdType;
 
 public class ImageProcessing
@@ -24,11 +31,43 @@ public class ImageProcessing
     private Image newImage;
     private Filter filter;
     private EdgeDetection edgeDetection;
+    private ImageThreshold imageThreshold;
+    private RegionDetection regionDetection;
 
     public ImageProcessing(String imagePath) throws IOException
     {
         this.setImagePath(imagePath);
         this.loadImage(this.getImagePath());
+    }
+
+    public void detectImageRegionsUsingHistogram()
+    {
+        this.regionDetection = new RegionDetectionUsingHistogram(this.newImage);
+        this.newImage = this.regionDetection.detectRegion();
+    }
+
+    public void binarizeImage(ThresholdType type, boolean use2ClassThreshold)
+    {
+        if (type.equals(ThresholdType.OTSU))
+        {
+            this.imageThreshold = new OtsuThreshold(this.originalImage, use2ClassThreshold);
+        }
+        else if (type.equals(ThresholdType.GLOBAL))
+        {
+            this.imageThreshold = new GlobalThreshold(this.originalImage, 5);
+        }
+        else if (type.equals(ThresholdType.HISTOGRAM_GROUP))
+        {
+            this.imageThreshold = new HistogramGroupThreshold(this.originalImage);
+        }
+        else if (type.equals(ThresholdType.ADAPTATIVE))
+        {
+            this.imageThreshold = new AdaptativeThreshold(this.originalImage);
+        }
+
+        Image newImage = this.imageThreshold.binarizeImage();
+        this.newImage = null;
+        this.newImage = newImage;
     }
 
     /**
@@ -38,9 +77,9 @@ public class ImageProcessing
      * @param type
      *            tipo do algoritmo de analise do threshold
      */
-    public void detectImageBorderWithSobelOperator(ThresholdType type)
+    public void detectImageBorderWithSobelOperator(ThresholdType type, boolean use2ClassThreshold)
     {
-        this.edgeDetection = new SobelOperator(this.originalImage, type);
+        this.edgeDetection = new SobelOperator(this.originalImage, type, use2ClassThreshold);
         this.newImage = this.edgeDetection.detectEdges();
     }
 

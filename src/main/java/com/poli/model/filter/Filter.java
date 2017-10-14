@@ -234,8 +234,8 @@ public class Filter
                 if (this.mask.isValidRegion(row, col, this.originalImage.getRows(), this.originalImage.getCols()))
                 {
                     int result = this.mask.calculateMaskResult(
-                            this.originalImage.getSubimage(row - rateMid, col - rateMid, rate, rate));
                     // int result = this.originalImage.getPixel(row, col);
+                            this.originalImage.getSubimage(row - rateMid, col - rateMid, rate, rate));
                     this.newImage.setPixel(row, col, result);
                 }
             }

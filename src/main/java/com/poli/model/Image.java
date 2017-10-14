@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -60,7 +61,7 @@ public class Image
         op.filter(this.image, grayImage);
         this.image = grayImage;
     }
-    
+
     public BufferedImage getSource()
     {
         return this.image;
@@ -89,6 +90,30 @@ public class Image
         ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
         op.filter(this.image, grayImage);
         return new Image(grayImage);
+    }
+
+    public HashMap<Integer, Integer> getPixelDistribuction()
+    {
+        HashMap<Integer, Integer> pixelDistribution = new HashMap<Integer, Integer>();
+
+        for (int i = 0; i < 256; i++)
+        {
+            pixelDistribution.put(i, 0);
+        }
+
+        for (int i = 0; i < this.getRows(); i++)
+        {
+            for (int j = 0; j < this.getCols(); j++)
+            {
+                int currentPixel = this.getPixel(i, j);
+
+                int value = pixelDistribution.get(currentPixel);
+                pixelDistribution.put(currentPixel, ++value);
+
+            }
+        }
+
+        return pixelDistribution;
     }
 
     public void showHistogram()

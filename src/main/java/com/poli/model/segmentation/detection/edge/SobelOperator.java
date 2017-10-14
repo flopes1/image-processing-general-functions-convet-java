@@ -1,9 +1,10 @@
-package com.poli.model.segmentation;
+package com.poli.model.segmentation.detection.edge;
 
 import com.poli.model.Image;
+import com.poli.model.segmentation.threshold.HistogramGroupThreshold;
+import com.poli.model.segmentation.threshold.AdaptativeThreshold;
 import com.poli.model.segmentation.threshold.GlobalThreshold;
 import com.poli.model.segmentation.threshold.OtsuThreshold;
-import com.poli.model.segmentation.threshold.util.AdaptativeGlobalOtsuThreshold;
 import com.poli.model.segmentation.threshold.util.ImageThreshold;
 import com.poli.model.segmentation.threshold.util.ThresholdType;
 
@@ -12,25 +13,29 @@ public class SobelOperator extends EdgeDetection
     private SobelMask mask;
     private ImageThreshold imageThreshold;
 
-    public SobelOperator(Image image, ThresholdType threshold)
+    public SobelOperator(Image image, ThresholdType threshold, boolean use2ClassThreshold)
     {
         super(image, threshold);
-        this.setImageThreshold();
+        this.setImageThreshold(use2ClassThreshold);
     }
 
-    private void setImageThreshold()
+    private void setImageThreshold(boolean use2ClassThreshold)
     {
         if (this.getThresholdType().equals(ThresholdType.OTSU))
         {
-            this.imageThreshold = new OtsuThreshold(this.getImage());
+            this.imageThreshold = new OtsuThreshold(this.getImage(), use2ClassThreshold);
         }
         else if (this.getThresholdType().equals(ThresholdType.GLOBAL))
         {
             this.imageThreshold = new GlobalThreshold(this.getImage(), 5);
         }
+        else if (this.getThresholdType().equals(ThresholdType.HISTOGRAM_GROUP))
+        {
+            this.imageThreshold = new HistogramGroupThreshold(this.getImage());
+        }
         else if (this.getThresholdType().equals(ThresholdType.ADAPTATIVE))
         {
-            this.imageThreshold = new AdaptativeGlobalOtsuThreshold(this.getImage());
+            this.imageThreshold = new AdaptativeThreshold(this.getImage());
         }
     }
 
@@ -57,7 +62,7 @@ public class SobelOperator extends EdgeDetection
 
                     double result = Math.sqrt(Math.pow(leftOperator, 2) + Math.pow(rightOperator, 2));
 
-                    int color = -1;
+                    int color = (int)result;
 
                     if (result >= threshold)
                     {

@@ -114,4 +114,12 @@ public class GlobalThreshold extends ImageThreshold
         return pixelDistribution;
     }
 
+    @Override
+    public Image binarizeImage()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
 }
