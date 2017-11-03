@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.util.HashMap;
 
 import javax.swing.ImageIcon;
@@ -22,6 +24,11 @@ public class Image
     public Image(BufferedImage image)
     {
         this.image = image;
+    }
+
+    public Image(Image image)
+    {
+        this.image = image.getSource();
     }
 
     public int getPixel(int row, int col)
@@ -85,11 +92,11 @@ public class Image
 
     public Image cloneImage()
     {
-        BufferedImage grayImage = new BufferedImage(this.image.getWidth(), this.image.getHeight(),
-                BufferedImage.TYPE_BYTE_GRAY);
-        ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-        op.filter(this.image, grayImage);
-        return new Image(grayImage);
+        ColorModel cm = this.image.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = this.image.copyData(this.image.getRaster().createCompatibleWritableRaster());
+        BufferedImage cloneImage = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+        return new Image(cloneImage);
     }
 
     public HashMap<Integer, Integer> getPixelDistribuction()
@@ -120,6 +127,57 @@ public class Image
     {
         this.histogram = new Histogram(this);
         this.histogram.display();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        boolean isEquals = true;
+
+        if (obj instanceof Image)
+        {
+            Image otherImage = (Image) obj;
+            if (otherImage.getRows() != this.getRows() || otherImage.getCols() != this.getCols())
+            {
+                isEquals = false;
+            }
+            else
+            {
+                for (int row = 0; row < this.getRows(); row++)
+                {
+                    for (int col = 0; col < this.getCols(); col++)
+                    {
+                        if (this.getPixel(row, col) != otherImage.getPixel(row, col))
+                        {
+                            isEquals = false;
+                            break;
+                        }
+                    }
+                    if (!isEquals)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            isEquals = false;
+        }
+
+        return isEquals;
+    }
+
+    public void clean()
+    {
+        for (int row = 0; row < this.getRows(); row++)
+        {
+            for (int col = 0; col < this.getCols(); col++)
+            {
+                this.setPixel(row, col, 255);
+            }
+        }
+
     }
 
 }

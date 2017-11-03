@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import com.poli.model.segmentation.threshold.util.ThresholdType;
+import com.poli.model.morphology.MorphologicalOperation;
+import com.poli.model.morphology.common.EnumMorphologyConnection;
+import com.poli.model.morphology.common.EnumMorphologyOperation;
+import com.poli.model.morphology.set.SetOperation;
 
 public class Main
 {
@@ -13,47 +16,32 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile = new File(classLoader.getResource("3_1.jpg").getFile());
-        // File imageFile = new File(classLoader.getResource("3.jpg").getFile());
+        File imageFile1 = new File(classLoader.getResource("extraction-4.png").getFile());
+        File imageFile2 = new File(classLoader.getResource("imagem2.png").getFile());
 
         // String destinyPath = "dentiny path";
         // String sourceImage = "source/1.jpg";
 
         try
         {
-            String sourceImagePath = URLDecoder.decode(imageFile.getPath(), "UTF-8");
-            String resourcePath = URLDecoder.decode(imageFile.getParent(), "UTF-8");
+            String sourceImage1Path = URLDecoder.decode(imageFile1.getPath(), "UTF-8");
+            String sourceImage2Path = URLDecoder.decode(imageFile2.getPath(), "UTF-8");
+            String resourcePath = URLDecoder.decode(imageFile1.getParent(), "UTF-8");
 
-            ImageProcessing imgProces = new ImageProcessing(sourceImagePath);
+            // Image otherImage = ImageUtils.loadImage(sourceImage2Path);
 
-            /**
-             * Chamada para o metodo que gera a solução da 1ª imagem
-             */
-            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.HISTOGRAM_GROUP, false);
+            // Para obter a operação booleana desejada basta trocar o enum do segundo parametro
+            // MorphologicalOperation morphologicalOperation = new LogicOperation(sourceImage1Path,
+            // EnumMorphologyOperation.AND);
+            // morphologicalOperation.applyOperation(otherImage);
 
-            /**
-             * Chamada para o metodo que gera a solução da 2ª imagem
-             */
-            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.OTSU, true);
+            // morphologicalOperation.showNewImage();
+            // morphologicalOperation.saveResult(resourcePath + "/AND.png");
 
-            /**
-             * Chamada para o metodo que gera a solução da 3ª imagem Caso queira a mão com a area interna em preto, usar
-             * a segunda função no resultado da primeira e a terceira no resultado da segunda. Caso não queria, executar
-             * só a primeria função
-             */
-            // imgProces.binarizeImage(ThresholdType.ADAPTATIVE, false);
-            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.OTSU, true);
-            // imgProces.applyMedianFilter(3);
-            /**
-             * Chamada para o metodo que gera a solução da 4ª imagem
-             */
-            // imgProces.detectImageBorderWithSobelOperator(ThresholdType.OTSU, false);
-
-            /**
-             * Utils
-             */
-            // imgProces.showImageHistogram();
-            // imgProces.saveImage(resourcePath + "/3_1_.jpg");
+            MorphologicalOperation morphologicalOperation = new SetOperation(sourceImage1Path,
+                    EnumMorphologyOperation.FILLING, EnumMorphologyConnection.FOUR);
+            ((SetOperation) morphologicalOperation).applyOperation();
+            morphologicalOperation.saveResult(resourcePath + "/filling-4.png");
         }
         catch (IOException e)
         {

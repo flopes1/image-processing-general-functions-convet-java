@@ -39,7 +39,7 @@ public class ImageProcessing
         this.setImagePath(imagePath);
         this.loadImage(this.getImagePath());
     }
-
+    
     public void detectImageRegionsUsingHistogram()
     {
         this.regionDetection = new RegionDetectionUsingHistogram(this.newImage);
