@@ -180,4 +180,22 @@ public class Image
 
     }
 
+    public boolean isEmptySet()
+    {
+        boolean isEmpty = true;
+
+        for (int row = 0; row < this.getRows(); row++)
+        {
+            for (int col = 0; col < this.getCols(); col++)
+            {
+                if (this.getPixel(row, col) != 255)
+                {
+                    isEmpty = false;
+                    break;
+                }
+            }
+        }
+        return isEmpty;
+    }
+
 }

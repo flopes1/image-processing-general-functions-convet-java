@@ -10,6 +10,7 @@ import com.poli.model.morphology.set.operation.DilationTransformOperation;
 import com.poli.model.morphology.set.operation.ErosionTransformOperation;
 import com.poli.model.morphology.set.operation.ExtractionTransformOperation;
 import com.poli.model.morphology.set.operation.OpenningTransformOperation;
+import com.poli.model.morphology.set.operation.ReductionTransformOperation;
 import com.poli.model.morphology.set.operation.RegionFillingTransformOperation;
 
 public class SetOperation extends MorphologicalOperation
@@ -53,7 +54,7 @@ public class SetOperation extends MorphologicalOperation
         }
         else if (EnumMorphologyOperation.REDUCTION.equals(morphologyOperation))
         {
-            // this.setSpacialTransformOperation(new ExtractionTransformOperation());
+             this.setSpacialTransformOperation(new ReductionTransformOperation());
         }
     }
 
