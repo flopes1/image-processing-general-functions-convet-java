@@ -25,7 +25,7 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile1 = new File(classLoader.getResource("imagem 2_binarizada_adaptativo.png").getFile());
+        File imageFile1 = new File(classLoader.getResource("imagem_2_binarizada_adaptativo.png").getFile());
 
         // String destinyPath = "dentiny path";
         // String sourceImage = "source/1.jpg";
@@ -36,16 +36,26 @@ public class Main
             String resourcePath = URLDecoder.decode(imageFile1.getParent(), "UTF-8");
 
             /**
-             * Código para gerar as versão 8 e 4 conectado da imagem 1, para alterar entre as versões
-             * basta trocar o enum (segundo parametro)
+             * Código para gerar as versão 8 e 4 conectado da imagem 1, para alterar entre as versões basta trocar o
+             * enum (segundo parametro)
              */
-             Image inputImage = ImageUtils.loadImage(sourceImage1Path);
-             ImageRepresentation imageRepresentation = new ChainCodeRepresentation(inputImage,
-             EnumChainDirectionType.EIGHT_DIRETION);
-             imageRepresentation.generateImageRepresentation(false);
-            
-             ImageUtils.saveImage(imageRepresentation.getResultImage(), resourcePath + "/imagem 2_chain_8.png");
+            // Image inputImage = ImageUtils.loadImage(sourceImage1Path);
+            // ImageRepresentation imageRepresentation = new ChainCodeRepresentation(inputImage,
+            // EnumChainDirectionType.EIGHT_DIRETION);
+            // imageRepresentation.generateImageRepresentation(true);
 
+            /**
+             * Código para gerar as versão 8 e 4 conectado da imagem 2, para alterar entre as versões basta trocar o
+             * enum (segundo parametro). A imagem de entrada foi binarizada utilizando o threshold adaptativo da atividade
+             * de segmentação.
+             */
+            Image inputImage2 = ImageUtils.loadImage(sourceImage1Path);
+            ImageRepresentation imageRepresentation2 = new ChainCodeRepresentation(inputImage2,
+                    EnumChainDirectionType.FOUR_DIRECTION);
+            imageRepresentation2.generateImageRepresentation(false);
+
+            ImageUtils.saveImage(imageRepresentation2.getResultImage(),
+                    resourcePath + "/imagem_2_binarizada_adaptativo_chain4.png");
 
         }
         catch (IOException e)

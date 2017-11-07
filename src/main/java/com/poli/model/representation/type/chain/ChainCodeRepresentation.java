@@ -37,26 +37,51 @@ public class ChainCodeRepresentation extends ImageRepresentation
     public void generateImageRepresentation(boolean preProcess)
     {
         Image image = this.calculateImageBorderPoints(preProcess);
-        this.setResultImage(image);
-        /*
-         * int gridSpliterX = (int) (this.getOriginalImage().getRows() * 0.01); int gridSpliterY = (int)
-         * (this.getOriginalImage().getCols() * 0.01); this.chainBorderElements.clear(); for (int i = 0; i <
-         * image.getRows(); i += gridSpliterX) { for (int j = 0; j < image.getCols(); j += gridSpliterY) { ChainPoint
-         * first = this.searchFirstPointInQuadrant(image, i, i + ((float) gridSpliterX / 2.0) - 1.0, j, j + ((float)
-         * gridSpliterY / 2.0) - 1.0, 1); if (first != null && !this.existInSamplingPoints(first)) {
-         * this.chainBorderElements.add(first); } ChainPoint second = this.searchFirstPointInQuadrant(image, i, i +
-         * ((float) gridSpliterX / 2.0) - 1.0, j + ((float) gridSpliterY / 2.0), j + gridSpliterY, 2); if (second !=
-         * null && !this.existInSamplingPoints(second)) { this.chainBorderElements.add(second); } ChainPoint third =
-         * this.searchFirstPointInQuadrant(image, i + ((float) gridSpliterX / 2.0), i + gridSpliterX, j, j + ((float)
-         * gridSpliterY / 2.0) - 1.0, 3); if (third != null && !this.existInSamplingPoints(third)) {
-         * this.chainBorderElements.add(third); } ChainPoint fourth = this.searchFirstPointInQuadrant(image, i +
-         * ((float) gridSpliterX / 2.0), i + gridSpliterX, j + ((float) gridSpliterY / 2.0), j + gridSpliterY, 4); if
-         * (fourth != null && !this.existInSamplingPoints(fourth)) { this.chainBorderElements.add(fourth); } if (first
-         * != null && fourth != null && second == null && third == null) { second = new ChainPoint(i, j + gridSpliterY);
-         * this.chainBorderElements.add(second); } else if (second != null && third != null && first == null && fourth
-         * == null) { fourth = new ChainPoint(i + gridSpliterX, j + gridSpliterY); this.chainBorderElements.add(fourth);
-         * } } } this.buildSamplingImage();
-         */
+
+        int gridSpliterX = (int) (this.getOriginalImage().getRows() * 0.01);
+        int gridSpliterY = (int) (this.getOriginalImage().getCols() * 0.01);
+        this.chainBorderElements.clear();
+        for (int i = 0; i < image.getRows(); i += gridSpliterX)
+        {
+            for (int j = 0; j < image.getCols(); j += gridSpliterY)
+            {
+                ChainPoint first = this.searchFirstPointInQuadrant(image, i, i + ((float) gridSpliterX / 2.0) - 1.0, j,
+                        j + ((float) gridSpliterY / 2.0) - 1.0, 1);
+                if (first != null && !this.existInSamplingPoints(first))
+                {
+                    this.chainBorderElements.add(first);
+                }
+                ChainPoint second = this.searchFirstPointInQuadrant(image, i, i + ((float) gridSpliterX / 2.0) - 1.0,
+                        j + ((float) gridSpliterY / 2.0), j + gridSpliterY, 2);
+                if (second != null && !this.existInSamplingPoints(second))
+                {
+                    this.chainBorderElements.add(second);
+                }
+                ChainPoint third = this.searchFirstPointInQuadrant(image, i + ((float) gridSpliterX / 2.0),
+                        i + gridSpliterX, j, j + ((float) gridSpliterY / 2.0) - 1.0, 3);
+                if (third != null && !this.existInSamplingPoints(third))
+                {
+                    this.chainBorderElements.add(third);
+                }
+                ChainPoint fourth = this.searchFirstPointInQuadrant(image, i + ((float) gridSpliterX / 2.0),
+                        i + gridSpliterX, j + ((float) gridSpliterY / 2.0), j + gridSpliterY, 4);
+                if (fourth != null && !this.existInSamplingPoints(fourth))
+                {
+                    this.chainBorderElements.add(fourth);
+                }
+                if (first != null && fourth != null && second == null && third == null)
+                {
+                    second = new ChainPoint(i, j + gridSpliterY);
+                    this.chainBorderElements.add(second);
+                }
+                else if (second != null && third != null && first == null && fourth == null)
+                {
+                    fourth = new ChainPoint(i + gridSpliterX, j + gridSpliterY);
+                    this.chainBorderElements.add(fourth);
+                }
+            }
+        }
+        this.buildSamplingImage();
     }
 
     private boolean existInSamplingPoints(ChainPoint point)
@@ -169,6 +194,14 @@ public class ChainCodeRepresentation extends ImageRepresentation
         {
             this.formatImageOutput2EightConnect();
         }
+        
+        this.joinPointsResultImage();
+    }
+
+    private void joinPointsResultImage()
+    {
+        // TODO Auto-generated method stub
+        
     }
 
     private void formatImageOutput2EightConnect()
@@ -240,8 +273,6 @@ public class ChainCodeRepresentation extends ImageRepresentation
         {
             image = this.openningTransformOperation.applyTransformation(image, StructuringElements.eightConnected);
         }
-        // image = this.closingTransformOperation.applyTransformation(image, StructuringElements.eightConnected);
-        // image = this.extractionTransformOperation.applyTransformation(image, StructuringElements.eightConnected);
 
         ChainPoint initialPoint = this.getImageInitialBorderPoint(image);
         this.chainBorderElements.add(initialPoint);
@@ -263,7 +294,7 @@ public class ChainCodeRepresentation extends ImageRepresentation
             }
 
             this.chainBorderElements.add(nextChainPoint);
-            System.err.println(nextChainPoint.toString());
+            // System.err.println(nextChainPoint.toString());
             bPoint = new ChainPoint(nextChainPoint.x, nextChainPoint.y, nextChainPoint.getDirection());
         }
 
@@ -286,30 +317,30 @@ public class ChainCodeRepresentation extends ImageRepresentation
 
         switch (dir)
         {
-            case 0:
-                newPoint = this.checkLeftNeighbor(image, newPoint, x, y);
-                break;
-            case 1:
-                newPoint = this.checkCornerLeftNeighbor(image, newPoint, x, y);
-                break;
-            case 2:
-                newPoint = this.checkUpperNeighbor(image, newPoint, x, y);
-                break;
-            case 3:
-                newPoint = this.checkCornerRightNeighbor(image, newPoint, x, y);
-                break;
-            case 4:
-                newPoint = this.checkRightNeighbor(image, newPoint, x, y);
-                break;
-            case 5:
-                newPoint = this.checkDownRightNeighbor(image, newPoint, x, y);
-                break;
-            case 6:
-                newPoint = this.checkDownNeighbor(image, newPoint, x, y);
-                break;
-            case 7:
-                newPoint = this.checkDownLeftNeighbor(image, newPoint, x, y);
-                break;
+        case 0:
+            newPoint = this.checkLeftNeighbor(image, newPoint, x, y);
+            break;
+        case 1:
+            newPoint = this.checkCornerLeftNeighbor(image, newPoint, x, y);
+            break;
+        case 2:
+            newPoint = this.checkUpperNeighbor(image, newPoint, x, y);
+            break;
+        case 3:
+            newPoint = this.checkCornerRightNeighbor(image, newPoint, x, y);
+            break;
+        case 4:
+            newPoint = this.checkRightNeighbor(image, newPoint, x, y);
+            break;
+        case 5:
+            newPoint = this.checkDownRightNeighbor(image, newPoint, x, y);
+            break;
+        case 6:
+            newPoint = this.checkDownNeighbor(image, newPoint, x, y);
+            break;
+        case 7:
+            newPoint = this.checkDownLeftNeighbor(image, newPoint, x, y);
+            break;
         }
 
         return newPoint;
@@ -609,225 +640,6 @@ public class ChainCodeRepresentation extends ImageRepresentation
             newPoint = new ChainPoint(x + 1, y - 1, 6);
         }
         return newPoint;
-    }
-
-    private boolean searchLeftDown = true;
-    private boolean searchRightDown = false;
-    private boolean searchRightUp = false;
-    private boolean searchLeftUp = false;
-
-    private Point getAdjacentClockWisePoint(Image image, Point currentPoint)
-    {
-        int currentX = currentPoint.x;
-        int currentY = currentPoint.y;
-
-        Point newBorderPoint = null;
-
-        if (image.getPixel(currentX - 1, currentY) == 0)
-        {
-            newBorderPoint = new Point(currentX - 1, currentY);
-            if (!this.imageBorderElements.contains(newBorderPoint))
-            {
-                return newBorderPoint;
-            }
-            else
-            {
-                newBorderPoint = null;
-            }
-        }
-
-        if (image.getPixel(currentX, currentY + 1) == 0)
-        {
-            newBorderPoint = new Point(currentX, currentY + 1);
-            if (!this.imageBorderElements.contains(newBorderPoint))
-            {
-                return newBorderPoint;
-            }
-            else
-            {
-                newBorderPoint = null;
-            }
-        }
-
-        if (image.getPixel(currentX + 1, currentY) == 0)
-        {
-            newBorderPoint = new Point(currentX + 1, currentY);
-            if (!this.imageBorderElements.contains(newBorderPoint))
-            {
-                return newBorderPoint;
-            }
-            else
-            {
-                newBorderPoint = null;
-            }
-        }
-
-        if (image.getPixel(currentX, currentY - 1) == 0)
-        {
-            newBorderPoint = new Point(currentX, currentY - 1);
-            if (!this.imageBorderElements.contains(newBorderPoint))
-            {
-                return newBorderPoint;
-            }
-            else
-            {
-                newBorderPoint = null;
-            }
-        }
-
-        return newBorderPoint;
-    }
-
-    private boolean searchLeftUp(Image image, int currentX, int currentY)
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    private boolean searchRightUp(Image image, int currentX, int currentY)
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    private boolean searchLeftDown(Image image, int currentX, int currentY)
-    {
-        Point newPoint;
-        boolean hasAdded = true;
-
-        if (image.getPixel(currentX, currentY - 1) == 0)
-        {
-            newPoint = new Point(currentX, currentY - 1);
-            this.imageBorderElements.add(newPoint);
-            System.err.println(newPoint.toString());
-        }
-        else
-        {
-            if (image.getPixel(currentX - 1, currentY - 1) == 0)
-            {
-                if (image.getPixel(currentX, currentY - 1) == 0)
-                {
-                    newPoint = new Point(currentX - 1, currentY - 1);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                    newPoint = new Point(currentX, currentY - 1);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                }
-                else
-                {
-                    newPoint = new Point(currentX - 1, currentY - 1);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                }
-
-            }
-            else
-            {
-
-                if (image.getPixel(currentX + 1, currentY - 1) == 0)
-                {
-                    if (image.getPixel(currentX + 1, currentY) == 0)
-                    {
-                        newPoint = new Point(currentX + 1, currentY);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                        newPoint = new Point(currentX + 1, currentY - 1);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                    }
-                    else
-                    {
-                        newPoint = new Point(currentX + 1, currentY - 1);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                    }
-                }
-                else if (image.getPixel(currentX + 1, currentY) == 0)
-                {
-                    newPoint = new Point(currentX + 1, currentY);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                }
-                else
-                {
-                    hasAdded = false;
-                }
-            }
-        }
-        return hasAdded;
-    }
-
-    private boolean searchRightDown(Image image, int currentX, int currentY)
-    {
-        boolean hasAdded = true;
-
-        Point newPoint;
-
-        if (image.getPixel(currentX, currentY + 1) == 0)
-        {
-            newPoint = new Point(currentX, currentY + 1);
-            this.imageBorderElements.add(newPoint);
-            System.err.println(newPoint.toString());
-        }
-        else
-        {
-            if (image.getPixel(currentX - 1, currentY + 1) == 0)
-            {
-                if (image.getPixel(currentX - 1, currentY) == 0)
-                {
-                    newPoint = new Point(currentX - 1, currentY);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                    newPoint = new Point(currentX - 1, currentY + 1);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                }
-                else
-                {
-                    newPoint = new Point(currentX - 1, currentY + 1);
-                    this.imageBorderElements.add(newPoint);
-                    System.err.println(newPoint.toString());
-                }
-
-            }
-            else
-            {
-
-                if (image.getPixel(currentX + 1, currentY + 1) == 0)
-                {
-                    if (image.getPixel(currentX + 1, currentY) == 0)
-                    {
-                        newPoint = new Point(currentX + 1, currentY + 1);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                        newPoint = new Point(currentX + 1, currentY);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                    }
-                    else
-                    {
-                        newPoint = new Point(currentX + 1, currentY + 1);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                    }
-                }
-                else
-                {
-                    if (image.getPixel(currentX + 1, currentY) == 0)
-                    {
-                        newPoint = new Point(currentX + 1, currentY);
-                        this.imageBorderElements.add(newPoint);
-                        System.err.println(newPoint.toString());
-                    }
-                    else
-                    {
-                        hasAdded = false;
-                    }
-                }
-            }
-        }
-        return hasAdded;
     }
 
     private ChainPoint getImageInitialBorderPoint(Image image)
