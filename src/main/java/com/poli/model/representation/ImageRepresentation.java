@@ -17,7 +17,7 @@ public abstract class ImageRepresentation
         this.setResultImage();
     }
 
-    public abstract void generateImageRepresentation();
+    public abstract void generateImageRepresentation(boolean preProcess);
 
     private void setResultImage()
     {

@@ -4,6 +4,7 @@ import com.poli.model.Image;
 import com.poli.model.morphology.MorphologicalOperation;
 import com.poli.model.morphology.common.EnumMorphologyOperation;
 import com.poli.model.morphology.logic.operation.AndOperation;
+import com.poli.model.morphology.logic.operation.NotOperation;
 import com.poli.model.morphology.logic.operation.OrOperation;
 import com.poli.model.morphology.logic.operation.XandOperation;
 import com.poli.model.morphology.logic.operation.XorOperation;
@@ -34,6 +35,10 @@ public class LogicOperation extends MorphologicalOperation
         else if (EnumMorphologyOperation.XAND.equals(morphologyOperation))
         {
             this.setBooleanOperation(new XandOperation());
+        }
+        else if (EnumMorphologyOperation.NOT.equals(morphologyOperation))
+        {
+            this.setBooleanOperation(new NotOperation());
         }
     }
 

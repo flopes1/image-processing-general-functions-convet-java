@@ -4,12 +4,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 
+import javax.lang.model.element.Modifier;
+
 import com.poli.model.Image;
 import com.poli.model.morphology.MorphologicalOperation;
 import com.poli.model.morphology.common.EnumMorphologyConnection;
 import com.poli.model.morphology.common.EnumMorphologyOperation;
 import com.poli.model.morphology.logic.LogicOperation;
 import com.poli.model.morphology.set.SetOperation;
+import com.poli.model.representation.ImageRepresentation;
+import com.poli.model.representation.type.chain.ChainCodeRepresentation;
+import com.poli.model.representation.type.chain.EnumChainDirectionType;
+import com.poli.model.segmentation.threshold.util.ThresholdType;
 import com.poli.model.util.ImageUtils;
 
 public class Main
@@ -19,7 +25,7 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile1 = new File(classLoader.getResource("oppening-8.gif").getFile());
+        File imageFile1 = new File(classLoader.getResource("imagem 2_binarizada_adaptativo.png").getFile());
 
         // String destinyPath = "dentiny path";
         // String sourceImage = "source/1.jpg";
@@ -29,11 +35,18 @@ public class Main
             String sourceImage1Path = URLDecoder.decode(imageFile1.getPath(), "UTF-8");
             String resourcePath = URLDecoder.decode(imageFile1.getParent(), "UTF-8");
 
-            MorphologicalOperation morphologicalOperationTransform = new SetOperation(sourceImage1Path,
-                    EnumMorphologyOperation.EXTRACTION, EnumMorphologyConnection.EIGHT);
-            ((SetOperation) morphologicalOperationTransform).applyOperation();
+            /**
+             * Código para gerar as versão 8 e 4 conectado da imagem 1, para alterar entre as versões
+             * basta trocar o enum (segundo parametro)
+             */
+             Image inputImage = ImageUtils.loadImage(sourceImage1Path);
+             ImageRepresentation imageRepresentation = new ChainCodeRepresentation(inputImage,
+             EnumChainDirectionType.EIGHT_DIRETION);
+             imageRepresentation.generateImageRepresentation(false);
+            
+             ImageUtils.saveImage(imageRepresentation.getResultImage(), resourcePath + "/imagem 2_chain_8.png");
 
-            morphologicalOperationTransform.saveResult(resourcePath + "/extract-8.gif");
+
         }
         catch (IOException e)
         {
