@@ -25,7 +25,7 @@ public class ChainPoint extends Point
     {
         return direction;
     }
-
+    
     public void setDirection(int direction)
     {
         this.direction = direction;

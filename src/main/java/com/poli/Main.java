@@ -25,7 +25,8 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile1 = new File(classLoader.getResource("imagem_2_binarizada_adaptativo.png").getFile());
+        File imageFile1 = new File(classLoader.getResource("imagem 1.gif").getFile());
+        File imageFile2 = new File(classLoader.getResource("imagem_2_binarizada_adaptativo.png").getFile());
 
         // String destinyPath = "dentiny path";
         // String sourceImage = "source/1.jpg";
@@ -33,6 +34,7 @@ public class Main
         try
         {
             String sourceImage1Path = URLDecoder.decode(imageFile1.getPath(), "UTF-8");
+            String sourceImage2Path = URLDecoder.decode(imageFile2.getPath(), "UTF-8");
             String resourcePath = URLDecoder.decode(imageFile1.getParent(), "UTF-8");
 
             /**
@@ -51,11 +53,11 @@ public class Main
              */
             Image inputImage2 = ImageUtils.loadImage(sourceImage1Path);
             ImageRepresentation imageRepresentation2 = new ChainCodeRepresentation(inputImage2,
-                    EnumChainDirectionType.FOUR_DIRECTION);
-            imageRepresentation2.generateImageRepresentation(false);
+                    EnumChainDirectionType.EIGHT_DIRETION);
+            imageRepresentation2.generateImageRepresentation(true);
 
             ImageUtils.saveImage(imageRepresentation2.getResultImage(),
-                    resourcePath + "/imagem_2_binarizada_adaptativo_chain4.png");
+                    resourcePath + "/imagem1_chain8.png");
 
         }
         catch (IOException e)

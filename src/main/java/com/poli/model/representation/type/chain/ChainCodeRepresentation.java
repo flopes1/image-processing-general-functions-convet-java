@@ -2,6 +2,7 @@ package com.poli.model.representation.type.chain;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.poli.model.Image;
 import com.poli.model.morphology.common.StructuringElements;
@@ -194,14 +195,441 @@ public class ChainCodeRepresentation extends ImageRepresentation
         {
             this.formatImageOutput2EightConnect();
         }
-        
+
         this.joinPointsResultImage();
     }
 
     private void joinPointsResultImage()
     {
-        // TODO Auto-generated method stub
-        
+        List<ChainPoint> processedPoints = new ArrayList<ChainPoint>();
+
+        ChainPoint initialPoint = this.getImageInitialBorderPoint(this.getResultImage());
+        initialPoint.setDirection(-1);
+
+        ChainPoint previousPoint = initialPoint;
+
+        while (true)
+        {
+            ChainPoint nextPoint = this.getNextPoint(previousPoint, processedPoints, this.getResultImage(),
+                    this.enumChainDirectionType);
+
+            if (nextPoint.equals(initialPoint))
+            {
+                break;
+            }
+            System.err.println(nextPoint.toString());
+            previousPoint = nextPoint;
+        }
+
+        ChainPoint first = processedPoints.get(0);
+
+        for (int i = 0; i < processedPoints.size(); i++)
+        {
+            ChainPoint next = processedPoints.get(i);
+            this.drawLine(first, next, this.getResultImage());
+            first = next;
+        }
+
+        // for(int row = 0; row < this.getResultImage().getRows(); row++)
+        // {
+        // for(int col = 0; col < this.getResultImage().getCols(); col++)
+        // {
+        // if(this.getResultImage().getPixel(row, col) == 0)
+        // {
+        // ChainPoint newPoint = new ChainPoint(row, col, 0);
+        // }
+        // }
+        // }
+
+    }
+
+    private void drawLine(ChainPoint previousPoint, ChainPoint nextPoint, Image resultImage)
+    {
+
+        if (previousPoint.x == nextPoint.x)
+        {
+            int initialY, finalY;
+            if (previousPoint.y < nextPoint.y)
+            {
+                initialY = previousPoint.y;
+                finalY = nextPoint.y;
+            }
+            else
+            {
+                initialY = nextPoint.y;
+                finalY = previousPoint.y;
+            }
+
+            for (int j = initialY; j < finalY; j++)
+            {
+                resultImage.setPixel(previousPoint.x, j, 0);
+            }
+        }
+        else if (previousPoint.y == nextPoint.y)
+        {
+            int initialX, finalX;
+
+            if (previousPoint.x < nextPoint.x)
+            {
+                initialX = previousPoint.x;
+                finalX = nextPoint.x;
+            }
+            else
+            {
+                initialX = nextPoint.x;
+                finalX = previousPoint.x;
+            }
+
+            for (int i = initialX; i < finalX; i++)
+            {
+                resultImage.setPixel(i, previousPoint.y, 0);
+            }
+
+        }
+        else
+        {
+            int initialX, finalX, initialY, finalY;
+
+            if (previousPoint.x < nextPoint.x)
+            {
+                initialX = previousPoint.x;
+                finalX = nextPoint.x;
+            }
+            else
+            {
+                initialX = nextPoint.x;
+                finalX = previousPoint.x;
+            }
+
+            if (previousPoint.y < nextPoint.y)
+            {
+                initialY = previousPoint.y;
+                finalY = nextPoint.y;
+            }
+            else
+            {
+                initialY = nextPoint.y;
+                finalY = previousPoint.y;
+            }
+            int j = initialY;
+            for (int i = initialX; i < finalX; i++)
+            {
+                resultImage.setPixel(i, j++, 0);
+            }
+
+        }
+
+    }
+
+    private ChainPoint getNextPoint(ChainPoint previousPoint, List<ChainPoint> processedPoints, Image resultImage,
+            EnumChainDirectionType enumChainDirectionType2)
+    {
+
+        ChainPoint next = null;
+
+        int xRate = (int) (resultImage.getRows() * 0.01) + 1;
+        int yRate = (int) (resultImage.getCols() * 0.01) + 1;
+
+        // search in down up
+        for (int i = previousPoint.x - 1; i > previousPoint.x - xRate; i--)
+        {
+            if (i > -1 && resultImage.getPixel(i, previousPoint.y) == 0)
+            {
+                next = new ChainPoint(i, previousPoint.y, 2);
+                if (processedPoints.contains(next) || previousPoint.getDirection() == 6)
+                {
+                    break;
+                }
+                processedPoints.add(next);
+                return next;
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(enumChainDirectionType2))
+        {
+            // serch diagonal 3-2
+            for (int i = previousPoint.x - 1; i > previousPoint.x - xRate; i--)
+            {
+                for (int j = previousPoint.y + 1; j < previousPoint.y + yRate; j++)
+                {
+                    if (i > -1 && j < resultImage.getCols() && resultImage.getPixel(i, j) == 0)
+                    {
+                        next = new ChainPoint(i, j, 3);
+                        if (processedPoints.contains(next) || previousPoint.getDirection() == 7)
+                        {
+                            break;
+                        }
+                        processedPoints.add(next);
+                        return next;
+                    }
+                }
+            }
+        }
+
+        // search in right direction
+        for (int j = previousPoint.y + 1; j < previousPoint.y + yRate; j++)
+        {
+            if (j < resultImage.getCols() && resultImage.getPixel(previousPoint.x, j) == 0)
+            {
+                next = new ChainPoint(previousPoint.x, j, 4);
+                if (processedPoints.contains(next) || previousPoint.getDirection() == 0)
+                {
+                    break;
+                }
+                processedPoints.add(next);
+                return next;
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(enumChainDirectionType2))
+        {
+            // TODO search diagonal 1-4
+            for (int i = previousPoint.x + 1; i < previousPoint.x + xRate; i++)
+            {
+                for (int j = previousPoint.y + 1; j < previousPoint.y + yRate; j++)
+                {
+                    if (j < resultImage.getCols() && i < resultImage.getRows() && resultImage.getPixel(i, j) == 0)
+                    {
+                        next = new ChainPoint(i, j, 5);
+                        if (processedPoints.contains(next) || previousPoint.getDirection() == 1)
+                        {
+                            break;
+                        }
+                        processedPoints.add(next);
+                        return next;
+                    }
+                }
+            }
+        }
+
+        // search up to down
+        for (int i = previousPoint.x + 1; i < previousPoint.x + xRate; i++)
+        {
+            if (i < resultImage.getRows() && resultImage.getPixel(i, previousPoint.y) == 0)
+            {
+                next = new ChainPoint(i, previousPoint.y, 6);
+                if (processedPoints.contains(next) || previousPoint.getDirection() == 2)
+                {
+                    break;
+                }
+                processedPoints.add(next);
+                return next;
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(enumChainDirectionType2))
+        {
+            // search diagonal 2-3
+            for (int i = previousPoint.x + 1; i < previousPoint.x + xRate; i++)
+            {
+                for (int j = previousPoint.y - 1; j > previousPoint.y - yRate; j--)
+                {
+                    if (j > -1 && i < resultImage.getRows() && resultImage.getPixel(i, j) == 0)
+                    {
+                        next = new ChainPoint(i, j, 7);
+                        if (processedPoints.contains(next) || previousPoint.getDirection() == 3)
+                        {
+                            break;
+                        }
+                        processedPoints.add(next);
+                        return next;
+                    }
+                }
+            }
+        }
+
+        // search in left direction
+        for (int j = previousPoint.y - 1; j > previousPoint.y - yRate; j--)
+        {
+            if (j > -1 && resultImage.getPixel(previousPoint.x, j) == 0)
+            {
+                next = new ChainPoint(previousPoint.x, j, 0);
+                if (processedPoints.contains(next) || previousPoint.getDirection() == 4)
+                {
+                    break;
+                }
+                processedPoints.add(next);
+                return next;
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(enumChainDirectionType2))
+        {
+            // TODO serch diagonal 3-1
+            for (int i = previousPoint.x - 1; i > previousPoint.x - xRate; i--)
+            {
+                for (int j = previousPoint.y - 1; j > previousPoint.y - yRate; j--)
+                {
+                    if (j > -1 && i > -1 && resultImage.getPixel(i, j) == 0)
+                    {
+                        next = new ChainPoint(i, j, 1);
+                        if (processedPoints.contains(next) || previousPoint.getDirection() == 5)
+                        {
+                            break;
+                        }
+                        processedPoints.add(next);
+                        return next;
+                    }
+                }
+            }
+        }
+
+        if (processedPoints.contains(next))
+        {
+            ChainPoint aux = this.searchFirstAvaliablePoint(previousPoint, processedPoints, resultImage);
+            if (aux == null)
+            {
+                throw new RuntimeException("Dead lock");
+            }
+            next = aux;
+        }
+
+        return next;
+    }
+
+    private ChainPoint searchFirstAvaliablePoint(ChainPoint previousPoint, List<ChainPoint> processedPoints,
+            Image resultImage)
+    {
+        int xThresh = (int) (this.getResultImage().getRows() * 0.1);
+        int yThresh = (int) (this.getResultImage().getCols() * 0.1);
+
+        // find up
+        for (int i = previousPoint.x; i > previousPoint.x - xThresh; i--)
+        {
+            if (i > -1 && resultImage.getPixel(i, previousPoint.y) == 0)
+            {
+                ChainPoint aux = new ChainPoint(i, previousPoint.y, 2);
+                if (!processedPoints.contains(aux))
+                {
+                    processedPoints.add(aux);
+                    return aux;
+                }
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(this.enumChainDirectionType))
+        {
+            // serch diagonal 3-2
+            for (int i = previousPoint.x - 1; i > previousPoint.x - xThresh; i--)
+            {
+                for (int j = previousPoint.y + 1; j < previousPoint.y + yThresh; j++)
+                {
+                    if (i > -1 && j < resultImage.getCols() && resultImage.getPixel(i, j) == 0)
+                    {
+                        ChainPoint aux = new ChainPoint(i, j, 3);
+                        if (!processedPoints.contains(aux))
+                        {
+                            processedPoints.add(aux);
+                            return aux;
+                        }
+                    }
+                }
+            }
+        }
+
+        // find right
+        for (int j = previousPoint.y; j < previousPoint.y + yThresh; j++)
+        {
+            if (j < resultImage.getCols() && resultImage.getPixel(previousPoint.x, j) == 0)
+            {
+                ChainPoint aux = new ChainPoint(previousPoint.x, j, 4);
+                if (!processedPoints.contains(aux))
+                {
+                    processedPoints.add(aux);
+                    return aux;
+                }
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(this.enumChainDirectionType))
+        {
+            // TODO search diagonal 1-4
+            for (int i = previousPoint.x + 1; i < previousPoint.x + xThresh; i++)
+            {
+                for (int j = previousPoint.y + 1; j < previousPoint.y + yThresh; j++)
+                {
+                    if (j < resultImage.getCols() && i < resultImage.getRows() && resultImage.getPixel(i, j) == 0)
+                    {
+                        ChainPoint aux = new ChainPoint(i, j, 5);
+                        if (!processedPoints.contains(aux))
+                        {
+                            processedPoints.add(aux);
+                            return aux;
+                        }
+                    }
+                }
+            }
+        }
+
+        // find down
+        for (int i = previousPoint.x; i < previousPoint.x + xThresh; i++)
+        {
+            if (i < resultImage.getRows() && resultImage.getPixel(i, previousPoint.y) == 0)
+            {
+                ChainPoint aux = new ChainPoint(i, previousPoint.y, 6);
+                if (!processedPoints.contains(aux))
+                {
+                    processedPoints.add(aux);
+                    return aux;
+                }
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(this.enumChainDirectionType))
+        {
+            // search diagonal 2-3
+            for (int i = previousPoint.x + 1; i < previousPoint.x + xThresh; i++)
+            {
+                for (int j = previousPoint.y - 1; j > previousPoint.y - yThresh; j--)
+                {
+                    if (j > -1 && i < resultImage.getRows() && resultImage.getPixel(i, j) == 0)
+                    {
+                        ChainPoint aux = new ChainPoint(i, j, 7);
+                        if (!processedPoints.contains(aux))
+                        {
+                            processedPoints.add(aux);
+                            return aux;
+                        }
+                    }
+                }
+            }
+        }
+
+        // find left
+        for (int j = previousPoint.y; j > previousPoint.y - yThresh; j--)
+        {
+            if (j > -1 && resultImage.getPixel(previousPoint.x, j) == 0)
+            {
+                ChainPoint aux = new ChainPoint(previousPoint.x, j, 2);
+                if (!processedPoints.contains(aux))
+                {
+                    processedPoints.add(aux);
+                    return aux;
+                }
+            }
+        }
+
+        if (EnumChainDirectionType.EIGHT_DIRETION.equals(this.enumChainDirectionType))
+        {
+            // TODO serch diagonal 3-1
+            for (int i = previousPoint.x - 1; i > previousPoint.x - xThresh; i--)
+            {
+                for (int j = previousPoint.y - 1; j > previousPoint.y - yThresh; j--)
+                {
+                    if (j > -1 && i > -1 && resultImage.getPixel(i, j) == 0)
+                    {
+                        ChainPoint aux = new ChainPoint(i, j, 1);
+                        if (!processedPoints.contains(aux))
+                        {
+                            processedPoints.add(aux);
+                            return aux;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private void formatImageOutput2EightConnect()
@@ -317,30 +745,30 @@ public class ChainCodeRepresentation extends ImageRepresentation
 
         switch (dir)
         {
-        case 0:
-            newPoint = this.checkLeftNeighbor(image, newPoint, x, y);
-            break;
-        case 1:
-            newPoint = this.checkCornerLeftNeighbor(image, newPoint, x, y);
-            break;
-        case 2:
-            newPoint = this.checkUpperNeighbor(image, newPoint, x, y);
-            break;
-        case 3:
-            newPoint = this.checkCornerRightNeighbor(image, newPoint, x, y);
-            break;
-        case 4:
-            newPoint = this.checkRightNeighbor(image, newPoint, x, y);
-            break;
-        case 5:
-            newPoint = this.checkDownRightNeighbor(image, newPoint, x, y);
-            break;
-        case 6:
-            newPoint = this.checkDownNeighbor(image, newPoint, x, y);
-            break;
-        case 7:
-            newPoint = this.checkDownLeftNeighbor(image, newPoint, x, y);
-            break;
+            case 0:
+                newPoint = this.checkLeftNeighbor(image, newPoint, x, y);
+                break;
+            case 1:
+                newPoint = this.checkCornerLeftNeighbor(image, newPoint, x, y);
+                break;
+            case 2:
+                newPoint = this.checkUpperNeighbor(image, newPoint, x, y);
+                break;
+            case 3:
+                newPoint = this.checkCornerRightNeighbor(image, newPoint, x, y);
+                break;
+            case 4:
+                newPoint = this.checkRightNeighbor(image, newPoint, x, y);
+                break;
+            case 5:
+                newPoint = this.checkDownRightNeighbor(image, newPoint, x, y);
+                break;
+            case 6:
+                newPoint = this.checkDownNeighbor(image, newPoint, x, y);
+                break;
+            case 7:
+                newPoint = this.checkDownLeftNeighbor(image, newPoint, x, y);
+                break;
         }
 
         return newPoint;
