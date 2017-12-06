@@ -6,6 +6,7 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
+import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.HashMap;
 
@@ -33,15 +34,23 @@ public class Image
 
     public int getPixel(int row, int col)
     {
-        int pixel = this.image.getRGB(col, row);
-        return (pixel & 0x000000ff);
+        Raster raster = this.image.getRaster();
+        return raster.getSample(col, row, 0);
     }
 
     public void setPixel(int row, int col, int value)
     {
         value = this.normalizeValue(value);
-        Color color = new Color(value, value, value);
-        this.image.setRGB(col, row, color.getRGB());
+        if (this.image.getType() == BufferedImage.TYPE_BYTE_GRAY)
+        {
+            this.image.getRaster().setPixel(col, row, new double[]
+            { value, value, value });
+        }
+        else
+        {
+            Color color = new Color(value, value, value);
+            this.image.setRGB(col, row, color.getRGB());
+        }
     }
 
     private int normalizeValue(int value)
@@ -64,7 +73,8 @@ public class Image
     {
         BufferedImage grayImage = new BufferedImage(this.image.getWidth(), this.image.getHeight(),
                 BufferedImage.TYPE_BYTE_GRAY);
-        ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+        ColorConvertOp op = new ColorConvertOp(this.image.getColorModel().getColorSpace(),
+                ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
         op.filter(this.image, grayImage);
         this.image = grayImage;
     }
@@ -116,7 +126,6 @@ public class Image
 
                 int value = pixelDistribution.get(currentPixel);
                 pixelDistribution.put(currentPixel, ++value);
-
             }
         }
 

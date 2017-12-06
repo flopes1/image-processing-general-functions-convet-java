@@ -24,7 +24,6 @@ public class Histogram
     public Histogram(Image image)
     {
         this.image = image;
-        this.dataset = new HistogramDataset();
         this.buildLayout();
     }
 

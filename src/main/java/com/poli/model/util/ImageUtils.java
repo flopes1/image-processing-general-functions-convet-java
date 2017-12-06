@@ -1,6 +1,7 @@
 package com.poli.model.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -38,6 +39,32 @@ public class ImageUtils
         catch (IOException e)
         {
             System.err.println(e.getMessage());
+        }
+    }
+
+    public static void saveImageAsByteArray(byte[] image, String path)
+    {
+        FileOutputStream fos = null;
+        try
+        {
+            fos = new FileOutputStream(path);
+            fos.write(image);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                fos.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
         }
     }
 }

@@ -4,18 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-import javax.lang.model.element.Modifier;
-
 import com.poli.model.Image;
-import com.poli.model.morphology.MorphologicalOperation;
-import com.poli.model.morphology.common.EnumMorphologyConnection;
-import com.poli.model.morphology.common.EnumMorphologyOperation;
-import com.poli.model.morphology.logic.LogicOperation;
-import com.poli.model.morphology.set.SetOperation;
-import com.poli.model.representation.ImageRepresentation;
-import com.poli.model.representation.type.chain.ChainCodeRepresentation;
-import com.poli.model.representation.type.chain.EnumChainDirectionType;
-import com.poli.model.segmentation.threshold.util.ThresholdType;
+import com.poli.model.color.ImageColorConversion;
+import com.poli.model.compress.CompressImage;
 import com.poli.model.util.ImageUtils;
 
 public class Main
@@ -25,40 +16,48 @@ public class Main
     {
         ClassLoader classLoader = Main.class.getClassLoader();
 
-        File imageFile1 = new File(classLoader.getResource("imagem 1.gif").getFile());
-        File imageFile2 = new File(classLoader.getResource("imagem_2_binarizada_adaptativo.png").getFile());
-
-        // String destinyPath = "dentiny path";
-        // String sourceImage = "source/1.jpg";
+        File imageFile1 = new File(classLoader.getResource("imagem 2.tif").getFile());
 
         try
         {
             String sourceImage1Path = URLDecoder.decode(imageFile1.getPath(), "UTF-8");
-            String sourceImage2Path = URLDecoder.decode(imageFile2.getPath(), "UTF-8");
             String resourcePath = URLDecoder.decode(imageFile1.getParent(), "UTF-8");
 
             /**
-             * Código para gerar as versão 8 e 4 conectado da imagem 1, para alterar entre as versões basta trocar o
-             * enum (segundo parametro)
+             * Todos os códigos devem ser executados 1 de cada vez
              */
-            // Image inputImage = ImageUtils.loadImage(sourceImage1Path);
-            // ImageRepresentation imageRepresentation = new ChainCodeRepresentation(inputImage,
-            // EnumChainDirectionType.EIGHT_DIRETION);
-            // imageRepresentation.generateImageRepresentation(true);
 
             /**
-             * Código para gerar as versão 8 e 4 conectado da imagem 2, para alterar entre as versões basta trocar o
-             * enum (segundo parametro). A imagem de entrada foi binarizada utilizando o threshold adaptativo da atividade
-             * de segmentação.
+             * Código para resolução da 1 questão. O algoritmo implementado é o RLE o resultado da compressão esta no
+             * formato txt, logo em seguida a imagem é reconstruida usando o txt
              */
-            Image inputImage2 = ImageUtils.loadImage(sourceImage1Path);
-            ImageRepresentation imageRepresentation2 = new ChainCodeRepresentation(inputImage2,
-                    EnumChainDirectionType.EIGHT_DIRETION);
-            imageRepresentation2.generateImageRepresentation(true);
+            Image image = ImageUtils.loadImage(sourceImage1Path);
+            CompressImage compressImage = new CompressImage(image);
+            byte[] encoded = compressImage.compressWithoutLoss();
+            ImageUtils.saveImageAsByteArray(encoded, resourcePath + "/imagem 2_resultado.txt");
+            Image descompressed = compressImage.descompressWithoutLoss(resourcePath + "/imagem 2_resultado.txt");
+            ImageUtils.saveImage(descompressed, resourcePath + "/imagem 2_.tif");
 
-            ImageUtils.saveImage(imageRepresentation2.getResultImage(),
-                    resourcePath + "/imagem1_chain8.png");
+            /**
+             * Código para solução da 2 questão, passar como parametro a imagem 1 ou 2
+             */
+            Image image2 = ImageUtils.loadImage(sourceImage1Path);
+            CompressImage compressImage2 = new CompressImage(image2);
+            Image result = compressImage2.compressWithLoss();
+            ImageUtils.saveImage(result, resourcePath + "/imagem 2_.tif");
 
+            /**
+             * Código para solução da 3 questão
+             */
+            // TODO
+
+            /**
+             * Código para resolução da 4 questão
+             */
+            Image image3 = ImageUtils.loadImage(sourceImage1Path);
+            Image result3 = ImageColorConversion.grayScale2rgb(image3);
+            // result.showImage();
+            ImageUtils.saveImage(result3, resourcePath + "/imagem 4_resultado.jpg");
         }
         catch (IOException e)
         {
